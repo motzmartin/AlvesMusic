@@ -70,7 +70,8 @@ To **bypass YouTube restrictions**, you need to **export your YouTube cookies** 
 - **Firefox:** Use a similar extension like "cookies.txt exporter"
 
 #### Steps:
-1. Go to [YouTube](https://www.youtube.com) and **log into your account**.
+1. Go to [YouTube](https://www.youtube.com) and **log into your account**.  
+   ⚠️ **USE A BURNER ACCOUNT!** ⚠️
 2. Use the extension to **export your cookies** as `cookies.txt`.
 3. Place the `cookies.txt` file in the **root directory** of the bot.
 
