@@ -3,12 +3,12 @@
 AlvesMusic is a simple yet powerful Discord music bot that allows you to **play music from YouTube** directly in your voice channels. It supports **queues, playlists, shuffling, and more**.
 
 ## 📌 Features
-✅ Play music from **YouTube**  
-✅ **Queue management** (add, view, clear, shuffle)  
-✅ **Playback controls** (pause, resume, skip, stop)  
-✅ **Supports YouTube playlists**  
-✅ Uses **cookies.txt** to bypass YouTube restrictions  
-✅ **Self-hosted** and **lightweight**  
+✅ Play music from **YouTube**
+✅ **Queue management** (play, clear, shuffle)
+✅ **Playback controls** (pause, resume, skip, stop)
+✅ **Supports YouTube playlists**
+✅ Uses **cookies.txt** to bypass YouTube restrictions
+✅ **Self-hosted** and **lightweight**
 
 ---
 
@@ -18,7 +18,7 @@ AlvesMusic is a simple yet powerful Discord music bot that allows you to **play 
 Make sure you have **Git** installed, then run:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/AlvesMusic.git
+git clone https://github.com/motzmartin/AlvesMusic.git
 cd AlvesMusic
 ```
 
@@ -65,7 +65,7 @@ DISCORD_TOKEN=your_discord_bot_token_here
 ### 2️⃣ Download YouTube cookies
 To **bypass YouTube restrictions**, you need to **export your YouTube cookies** using a browser extension:
 
-- **Chrome:** Install [Get cookies.txt](https://chrome.google.com/webstore/detail/get-cookiestxt/knippmkejkfnmbbbcaomcljkjepdkgoi)
+- **Chrome:** Install [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
 - **Firefox:** Use a similar extension like "cookies.txt exporter"
 
 #### Steps:
