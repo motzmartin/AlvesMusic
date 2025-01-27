@@ -78,8 +78,8 @@ class General(commands.Cog):
             if queue:
                 queue.clear()
 
-                embed.title="🗑️ File d'attente vidée"
-                embed.description="Toutes les musiques ont été supprimées de la file d'attente."
+                embed.title = "🗑️ File d'attente vidée"
+                embed.description = "Toutes les musiques ont été supprimées de la file d'attente."
             else:
                 embed.title = "📭 File d'attente déjà vide"
                 embed.description = "Il n'y a aucune musique en attente."

@@ -60,7 +60,7 @@ The bot requires:
 Create a `.env` file in the **root directory** and add your Discord bot token:
 
 ```
-DISCORD_TOKEN=your_discord_bot_token_here
+BOT_TOKEN=your_discord_bot_token_here
 ```
 
 ### 2️⃣ Download YouTube cookies
