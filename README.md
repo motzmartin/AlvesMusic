@@ -83,10 +83,42 @@ To **bypass YouTube restrictions**, you need to **export your YouTube cookies** 
 Start AlvesMusic with:
 
 ```bash
-python bot.py
+python main.py
 ```
 
 If you’re using a virtual environment, make sure it’s activated before running the bot.
+
+### 🔹 Using `screen` to Keep the Bot Running (Linux)
+If you want to **keep the bot running even after closing your terminal**, you can use `screen`:
+
+1. **Create a new screen session:**
+```bash
+screen -S alvesmusic
+```
+
+2. **Start the bot inside the screen session:**
+```bash
+python main.py
+```
+
+3. **Detach the screen session (leave it running in the background):**  
+Press `Ctrl + A`, then `D`.
+
+4. **Reconnect to the screen session later:**  
+```bash
+screen -r alvesmusic
+```
+
+5. **To list all running screen sessions:**  
+```bash
+screen -ls
+```
+
+6. **To terminate the screen session:**  
+Reconnect to it using `screen -r alvesmusic`, then exit with:  
+```bash
+exit
+```
 
 ### 🔹 Commands
 | Command               | Description                          |
