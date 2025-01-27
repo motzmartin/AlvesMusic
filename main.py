@@ -1,7 +1,14 @@
+import os
+from dotenv import load_dotenv
 from alvesmusic import AlvesMusic
 
-BOT_TOKEN = "MTMzMDU3MTU4OTI2MzAzMjM2MA.GFZ_VL.F49xdKl9bi8pEKUPuFcI2oBie3qhsFA6oVgymk"
+load_dotenv()
+
+TOKEN = os.getenv("BOT_TOKEN")
+
+if not TOKEN:
+    raise ValueError("Le token Discord n'est pas défini dans le fichier .env")
 
 bot = AlvesMusic()
 
-bot.run(BOT_TOKEN)
+bot.run(TOKEN)
