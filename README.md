@@ -87,17 +87,17 @@ python bot.py
 If you’re using a virtual environment, make sure it’s activated before running the bot.
 
 ### 🔹 Commands
-| Command             | Description |
-|---------------------|-------------|
-| `!play <search|URL>` | Plays a song or adds it to the queue |
-| `!queue [page]`     | Displays the current queue |
-| `!playing`          | Shows the currently playing song |
-| `!clear`            | Clears the queue |
-| `!shuffle`          | Randomly shuffles the queue |
-| `!skip`             | Skips to the next song |
-| `!stop`             | Stops playback and clears the queue |
-| `!pause`            | Pauses the current song |
-| `!resume`           | Resumes the paused song |
+| Command               | Description                          |
+|-----------------------|--------------------------------------|
+| `!play <search\|URL>` | Plays a song or adds it to the queue |
+| `!queue [page]`       | Displays the current queue           |
+| `!playing`            | Shows the currently playing song     |
+| `!clear`              | Clears the queue                     |
+| `!shuffle`            | Randomly shuffles the queue          |
+| `!skip`               | Skips to the next song               |
+| `!stop`               | Stops playback and clears the queue  |
+| `!pause`              | Pauses the current song              |
+| `!resume`             | Resumes the paused song              |
 
 ---
 
