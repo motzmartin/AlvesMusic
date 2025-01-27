@@ -5,11 +5,16 @@ directly in your voice channels.
 
 ## 📌 Features
 
-✅ Play music from **YouTube**  
-✅ **Queue management** (play, clear, shuffle)  
-✅ **Playback controls** (pause, resume, skip, stop)  
-✅ **Supports playlists**  
-✅ Uses **cookies.txt** to bypass YouTube restrictions  
+✅ Play music from **YouTube**
+
+✅ **Queue management** (play, clear, shuffle)
+
+✅ **Playback controls** (pause, resume, skip, stop)
+
+✅ **Supports playlists**
+
+✅ Uses **cookies.txt** to bypass YouTube restrictions
+
 ✅ **Self-hosted** and **lightweight**
 
 ---
@@ -58,7 +63,9 @@ pip install -r requirements.txt
 The bot requires:
 
 - `discord.py` (for Discord bot functionality)
+
 - `yt_dlp` (to interact with YouTube)
+
 - `python-dotenv` (to load environment variables)
 
 ---
@@ -78,13 +85,17 @@ BOT_TOKEN=your_discord_bot_token_here
 To **bypass YouTube restrictions**, you need to **export your YouTube cookies** using a browser extension:
 
 - **Chrome:** Install [Get cookies.txt LOCALLY](https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc)
+
 - **Firefox:** Use a similar extension like "cookies.txt exporter"
 
 #### Steps:
 
-1. Go to [YouTube](https://www.youtube.com) and **log into your account**.  
-  ⚠️ **USE A BURNER ACCOUNT!** ⚠️
+1. Go to [YouTube](https://www.youtube.com) and **log into your account**.
+
+   ⚠️ **USE A BURNER ACCOUNT!** ⚠️
+
 2. Use the extension to **export your cookies** as `cookies.txt`.
+
 3. Place the `cookies.txt` file in the **root directory** of the bot.
 
 ---
@@ -107,39 +118,39 @@ If you want to **keep the bot running even after closing your terminal**, you ca
 
 1. **Create a new screen session:**
 
-```
-screen -S alvesmusic
-```
+   ```
+   screen -S alvesmusic
+   ```
 
 2. **Start the bot inside the screen session:**
 
-```
-python main.py
-```
+   ```
+   python main.py
+   ```
 
-3. **Detach the screen session (leave it running in the background):**  
+3. **Detach the screen session (leave it running in the background):**
 
-Press `Ctrl + A`, then `D`.
+   Press `Ctrl + A`, then `D`.
 
 4. **Reconnect to the screen session later:**
 
-```
-screen -r alvesmusic
-```
+   ```
+   screen -r alvesmusic
+   ```
 
 5. **To list all running screen sessions:**
 
-```
-screen -ls
-```
+   ```
+   screen -ls
+   ```
 
-6. **To terminate the screen session:**  
+6. **To terminate the screen session:**
 
-Reconnect to it using `screen -r alvesmusic`, then exit with:
+   Reconnect to it using `screen -r alvesmusic`, then exit with:
 
-```
-exit
-```
+   ```
+   exit
+   ```
 
 ### 🔹 Commands
 
@@ -162,7 +173,9 @@ exit
 AlvesMusic is **self-hosted**, meaning you can run it on:
 
 - **Your local machine** (Windows, Linux, macOS)
+
 - **A VPS (Virtual Private Server)** for 24/7 uptime
+
 - **A Raspberry Pi** for a lightweight solution
 
 ---
@@ -170,6 +183,7 @@ AlvesMusic is **self-hosted**, meaning you can run it on:
 ## 🔒 Security Reminder
 
 - **Never share your `.env` file** or Discord bot token!
+
 - Add `.env` and `cookies.txt` to your `.gitignore` file:
 
 ```
