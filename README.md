@@ -70,6 +70,66 @@ The bot requires:
 
 - `PyNaCl` (for cryptographic operations and voice support in Discord bots)
 
+### 4️⃣ Install FFmpeg (Required for Audio)
+
+- **Windows:**
+
+1. Download the latest FFmpeg "full" build from:
+
+   [FFmpeg Download](https://ffmpeg.org/download.html)
+
+2. Extract the contents to a directory (e.g., C:\ffmpeg).
+
+3. Add FFmpeg to your system’s PATH:
+
+   - Search for "Edit the system environment variables" in the Start menu.
+
+   - Click "Environment Variables".
+
+   - Under System Variables, find and edit the Path variable.
+
+   - Click New, then add the bin folder path (e.g., C:\ffmpeg\bin).
+
+4. Verify the installation by running:
+
+   ```
+   ffmpeg -version
+   ```
+
+- **Linux/macOS:**
+
+  Use your package manager to install FFmpeg:
+
+  - Debian/Ubuntu:
+
+    ```
+    sudo apt update && sudo apt install ffmpeg
+    ```
+
+  - macOS (Homebrew):
+
+    ```
+    brew install ffmpeg
+    ```
+
+  - Arch Linux:
+
+    ```
+    sudo pacman -S ffmpeg
+    ```
+
+  - Fedora:
+
+    ```
+    sudo dnf install ffmpeg
+    ```
+
+  Verify the installation:
+
+  ```
+  ffmpeg -version
+  ```
+
 ---
 
 ## ⚙️ Setup
