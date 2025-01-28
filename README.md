@@ -68,6 +68,8 @@ The bot requires:
 
 - `python-dotenv` (to load environment variables)
 
+- `PyNaCl` (for cryptographic operations and voice support in Discord bots)
+
 ---
 
 ## ⚙️ Setup
