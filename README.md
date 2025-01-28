@@ -1,27 +1,49 @@
-# 🎵 AlvesMusic - A Discord Music Bot Playing from YouTube 🎶
+# AlvesMusic - A Discord Music Bot Playing from YouTube
 
 AlvesMusic is a simple yet powerful Discord music bot that allows you to **play music from YouTube**
 directly in your voice channels.
 
 ## 📌 Features
 
-✅ Play music from **YouTube**
+- Play music from **YouTube**
 
-✅ **Queue management** (play, clear, shuffle)
+- **Queue management** (play, clear, shuffle)
 
-✅ **Playback controls** (pause, resume, skip, stop)
+- **Playback controls** (pause, resume, skip, stop)
 
-✅ **Supports playlists**
+- **Supports playlists**
 
-✅ Uses **cookies.txt** to bypass YouTube restrictions
+- Uses **cookies.txt** to bypass YouTube restrictions
 
-✅ **Self-hosted** and **lightweight**
+- **Self-hosted** and **lightweight**
+
+---
+
+## 📸 Examples
+
+- **Playing a track**
+
+  `!play calogero 1987`
+
+  *upload screen1 here*
+
+- **Adding a playlist**
+
+  `!play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43`
+
+  *upload screen2 here*
+
+- **Displaying the queue**
+
+  `!queue`
+
+  *upload screen3 here*
 
 ---
 
 ## 📥 Installation
 
-### 1️⃣ Clone the repository
+### 1. Clone the repository
 
 Make sure you have **Git** installed, then run:
 
@@ -30,7 +52,7 @@ git clone https://github.com/motzmartin/AlvesMusic.git
 cd AlvesMusic
 ```
 
-### 2️⃣ Create a virtual environment (recommended)
+### 2. Create a virtual environment (recommended)
 
 Using **Python virtual environment** avoids dependency conflicts:
 
@@ -52,7 +74,7 @@ Then, activate it:
   source venv/bin/activate
   ```
 
-### 3️⃣ Install dependencies
+### 3. Install dependencies
 
 Run:
 
@@ -70,7 +92,7 @@ The bot requires:
 
 - `PyNaCl` (for cryptographic operations and voice support in Discord bots)
 
-### 4️⃣ Install FFmpeg (Required for Audio)
+### 4. Install FFmpeg (Required for Audio)
 
 - **Windows:**
 
@@ -80,7 +102,7 @@ The bot requires:
 
 2. Extract the contents to a directory (e.g., C:\ffmpeg).
 
-3. Add FFmpeg to your system’s PATH:
+3. Add FFmpeg to your system's PATH:
 
    - Search for "Edit the system environment variables" in the Start menu.
 
@@ -134,7 +156,7 @@ The bot requires:
 
 ## ⚙️ Setup
 
-### 1️⃣ Configure your `.env` file
+### 1. Configure your `.env` file
 
 Create a `.env` file in the **root directory** and add your Discord bot token:
 
@@ -142,7 +164,7 @@ Create a `.env` file in the **root directory** and add your Discord bot token:
 BOT_TOKEN=your_discord_bot_token_here
 ```
 
-### 2️⃣ Download YouTube cookies
+### 2. Download YouTube cookies
 
 To **bypass YouTube restrictions**, you need to **export your YouTube cookies** using a browser extension:
 
@@ -164,7 +186,7 @@ To **bypass YouTube restrictions**, you need to **export your YouTube cookies** 
 
 ## 🎮 Usage
 
-### 🔹 Run the bot
+### Run the bot
 
 Start AlvesMusic with:
 
@@ -172,9 +194,9 @@ Start AlvesMusic with:
 python main.py
 ```
 
-If you’re using a virtual environment, make sure it’s activated before running the bot.
+If you're using a virtual environment, make sure it's activated before running the bot.
 
-### 🔹 Using `screen` to Keep the Bot Running (Linux)
+### Using `screen` to Keep the Bot Running (Linux)
 
 If you want to **keep the bot running even after closing your terminal**, you can use `screen`:
 
@@ -214,7 +236,7 @@ If you want to **keep the bot running even after closing your terminal**, you ca
    exit
    ```
 
-### 🔹 Commands
+### Commands
 
 | Command               | Description                          |
 |-----------------------|--------------------------------------|
