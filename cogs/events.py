@@ -48,10 +48,6 @@ class Events(commands.Cog):
             embed.description = "L'argument fourni n'est pas valide."
         elif isinstance(error, commands.CommandNotFound):
             embed.description = "Cette commande n'existe pas. Essayez **!help** pour voir la liste des commandes."
-        elif isinstance(error, commands.CommandOnCooldown):
-            embed.description = "Cette commande est en cooldown. Réessayez dans {} seconde(s).".format(round(error.retry_after, 2))
-        elif isinstance(error, commands.MissingPermissions):
-            embed.description = "Vous n'avez pas la permission d'exécuter cette commande."
         else:
             embed.description = "Une erreur inconnue est survenue."
             raise_error = True

@@ -21,7 +21,7 @@ class Player(commands.Cog):
 
         voice: discord.VoiceClient = ctx.voice_client
         if not voice:
-            raise Exception("Le bot a quitté le salon vocal.")
+            raise Exception("Le bot a quitté le salon vocal")
 
         # Vérifie si la file d'attente est vide
 
@@ -44,7 +44,7 @@ class Player(commands.Cog):
         info = await self.bot.loop.run_in_executor(None, extract_audio, song["url"])
 
         if not info.get("url"):
-            raise Exception("Impossible d'extraire l'URL audio.")
+            raise Exception("Impossible d'extraire l'URL audio")
 
         # Lecture du titre
 
@@ -52,7 +52,7 @@ class Player(commands.Cog):
 
         voice: discord.VoiceClient = ctx.voice_client
         if not voice:
-            raise Exception("Le bot a quitté le salon vocal.")
+            raise Exception("Le bot a quitté le salon vocal")
 
         voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(self.next(ctx), self.bot.loop))
 
