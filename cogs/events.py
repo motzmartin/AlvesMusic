@@ -11,10 +11,28 @@ class Events(commands.Cog):
         await self.bot.wait_until_ready()
 
         for guild in self.bot.guilds:
-            self.bot.data[guild.id] = {"queue": [], "playing": None}
+            self.bot.data[guild.id] = {
+                "queue": [],
+                "playing": {
+                    "state": 0,
+                    "song": {
+                        "url": "",
+                        "title": "",
+                        "duration": "",
+                        "author": "",
+                        "avatar": "",
+                        "channel": "",
+                        "channel_url": "",
+                        "view_count": "",
+                        "thumbnail": ""
+                    }
+                }
+            }
 
         activity = discord.Game(name="(*de la) musique.")
         await self.bot.change_presence(activity=activity)
+
+        print("Connecté en tant que {}.".format(self.bot.user))
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):

@@ -14,10 +14,10 @@ class General(commands.Cog):
         embed.color = discord.Color.from_str("#73BCFF")
 
         queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
-        max_page = (len(queue) + 19) // 20
+        max_page = 1 if not queue else (len(queue) + 19) // 20
 
-        if queue:
-            if page >= 1 and page <= max_page:
+        if page >= 1 and page <= max_page:
+            if queue:
                 queue_list = ""
                 for i in range((page - 1) * 20, min(page * 20, len(queue))):
                     song: dict = queue[i]
@@ -35,33 +35,35 @@ class General(commands.Cog):
 
                 embed.add_field(name="Durée totale", value=duration_str(sum(song["duration"] for song in queue if song["duration"])))
             else:
-                raise commands.BadArgument()
-        else:
-            embed.title = "📭 File d'attente vide"
-            embed.description = "Aucune musique en attente."
+                embed.title = "📭 File d'attente vide"
+                embed.description = "Aucune musique en attente."
 
-        await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
+        else:
+            raise commands.BadArgument()
 
     @commands.command()
     async def playing(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        playing: dict | str = self.bot.data[ctx.guild.id]["playing"]
-        if playing and playing != "waiting":
-            embed.title = "🔊 En train de jouer"
-            if playing["title"] and playing["url"]:
-                embed.description = "[**{}**]({})".format(playing["title"], playing["url"])
+        playing: dict = self.bot.data[ctx.guild.id]["playing"]
+        if playing["state"] == 1:
+            song = playing["song"]
 
-            if playing["channel"] and playing["channel_url"]:
-                embed.add_field(name="Chaîne", value="[{}]({})".format(playing["channel"], playing["channel_url"]))
-            if playing["view_count"]:
-                embed.add_field(name="Vues", value="{:,}".format(playing["view_count"]).replace(",", " "))
-            if playing["duration"]:
-                embed.add_field(name="Durée", value=duration_str(playing["duration"]))
-            if playing["thumbnail"]:
-                embed.set_thumbnail(url=playing["thumbnail"])
-            embed.set_footer(text="Demandée par {}".format(playing["author"]), icon_url=playing["avatar"])
+            embed.title = "🔊 En train de jouer"
+            if song["title"] and song["url"]:
+                embed.description = "[**{}**]({})".format(song["title"], song["url"])
+
+            if song["channel"] and song["channel_url"]:
+                embed.add_field(name="Chaîne", value="[{}]({})".format(song["channel"], song["channel_url"]))
+            if song["view_count"]:
+                embed.add_field(name="Vues", value="{:,}".format(song["view_count"]).replace(",", " "))
+            if song["duration"]:
+                embed.add_field(name="Durée", value=duration_str(song["duration"]))
+            if song["thumbnail"]:
+                embed.set_thumbnail(url=song["thumbnail"])
+            embed.set_footer(text="Demandée par {}".format(song["author"]), icon_url=song["avatar"])
         else:
             embed.title = "🔇 Aucune musique en cours"
             embed.description = "Aucune musique en cours de lecture."
@@ -117,8 +119,8 @@ class General(commands.Cog):
 
         if ctx.author.voice:
             voice: discord.VoiceClient = ctx.voice_client
-            playing: dict | str = self.bot.data[ctx.guild.id]["playing"]
-            if voice and playing and playing != "waiting":
+            playing: dict = self.bot.data[ctx.guild.id]["playing"]
+            if voice and playing["state"] == 1:
                 voice.stop()
 
                 embed.title = "⏭️ Musique suivante"

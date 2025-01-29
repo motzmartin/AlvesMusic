@@ -15,16 +15,13 @@ class Player(commands.Cog):
         self.bot = bot
 
     async def play_next(self, ctx: commands.Context, search_message: discord.Message = None):
-        # Définit playing à "waiting" pour éviter la lecture de deux musiques
+        # Vérifie si le bot est toujours connecté au salon vocal
 
         data: dict = self.bot.data[ctx.guild.id]
-        data["playing"] = "waiting"
-
-        # Vérifie si le bot est toujours connecté au salon vocal
 
         voice: discord.VoiceClient = ctx.voice_client
         if not voice:
-            data["playing"] = None
+            data["playing"]["state"] = 0
 
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
@@ -40,7 +37,7 @@ class Player(commands.Cog):
 
         queue: list[dict] = data["queue"]
         if not queue:
-            data["playing"] = None
+            data["playing"]["state"] = 0
             await voice.disconnect()
 
             embed = discord.Embed()
@@ -50,17 +47,20 @@ class Player(commands.Cog):
 
             return await ctx.send(embed=embed)
 
-        # Récupération de l'audio de la musique
+        # Récupération de l'audio du titre
 
-        playing = queue.pop(0)
+        song = queue.pop(0)
 
         try:
-            info = await self.bot.loop.run_in_executor(None, extract_audio, playing["url"])
+            info = await self.bot.loop.run_in_executor(None, extract_audio, song["url"])
 
             if not info.get("url"):
                 raise ValueError("Impossible d'extraire l'URL audio.")
         except Exception as e:
-            data["playing"] = None
+            # Erreur yt-dlp
+
+            data["playing"]["state"] = 0
+
             voice: discord.VoiceClient = ctx.voice_client
             if voice:
                 await voice.disconnect()
@@ -75,20 +75,13 @@ class Player(commands.Cog):
 
             return await ctx.send(embed=embed)
 
-        playing["channel"] = info.get("channel")
-        playing["channel_url"] = info.get("channel_url")
-        playing["view_count"] = info.get("view_count")
-        playing["thumbnail"] = info.get("thumbnail")
-
-        data["playing"] = playing
-
-        # Lecture de la musique
+        # Lecture du titre
 
         source = discord.FFmpegOpusAudio(info["url"], **FFMPEG_OPTIONS)
 
         voice: discord.VoiceClient = ctx.voice_client
         if not voice:
-            data["playing"] = None
+            data["playing"]["state"] = 0
 
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
@@ -101,6 +94,16 @@ class Player(commands.Cog):
             return await ctx.send(embed=embed)
 
         voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop))
+
+        # Mise à jour du titre en cours
+
+        song["channel"] = info.get("channel")
+        song["channel_url"] = info.get("channel_url")
+        song["view_count"] = info.get("view_count")
+        song["thumbnail"] = info.get("thumbnail")
+
+        data["playing"]["song"] = song
+        data["playing"]["state"] = 1
 
         # Envoi de l'embed de lecture
 
@@ -118,7 +121,7 @@ class Player(commands.Cog):
             embed.add_field(name="Durée", value=duration_str(info["duration"]))
         if info.get("thumbnail"):
             embed.set_thumbnail(url=info["thumbnail"])
-        embed.set_footer(text="Demandée par {}".format(playing["author"]), icon_url=playing["avatar"])
+        embed.set_footer(text="Demandée par {}".format(song["author"]), icon_url=song["avatar"])
 
         if search_message:
             await search_message.edit(embed=embed)
@@ -158,11 +161,15 @@ class Player(commands.Cog):
 
         # Recherche du ou des titres
 
+        playing: dict = self.bot.data[ctx.guild.id]["playing"]
+
         try:
             info = await self.bot.loop.run_in_executor(None, extract, query)
         except Exception as e:
+            # Erreur yt-dlp
+
             voice: discord.VoiceClient = ctx.voice_client
-            if voice and not self.bot.data[ctx.guild.id]["playing"]:
+            if voice and playing["state"] == 0:
                 await voice.disconnect()
 
             embed = discord.Embed()
@@ -175,27 +182,27 @@ class Player(commands.Cog):
         queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
 
         if "entries" in info:
+            # Aucun, un ou plusieurs résultat(s)
+
             if not info["entries"]:
+                # Aucun résultat, envoi de l'embed informatif
+                # !play unyoxhgikwdbplecfjqa
+
                 embed = discord.Embed()
                 embed.color = discord.Color.from_str("#73BCFF")
                 embed.title = "❌ Aucun résultat"
                 embed.description = "Aucun résultat trouvé pour **{}**.".format(query)
 
-                return await search_message.edit(embed=embed)
+                await search_message.edit(embed=embed)
             elif len(info["entries"]) == 1:
+                # Un seul résultat (souvent venant d'une recherche)
+                # !play calogero 1987
+
                 first: dict = info["entries"][0]
 
-                song = {
-                    "url": first.get("url"),
-                    "title": first.get("title"),
-                    "duration": first.get("duration"),
-                    "author": ctx.author.name,
-                    "avatar": ctx.author.avatar.url
-                }
+                if queue or playing["state"] != 0:
+                    # Envoi de l'embed informatif
 
-                queue.append(song)
-
-                if self.bot.data[ctx.guild.id]["playing"]:
                     embed = discord.Embed()
                     embed.color = discord.Color.from_str("#73BCFF")
                     embed.title = "📌 Ajoutée à la file d'attente"
@@ -213,22 +220,30 @@ class Player(commands.Cog):
                     embed.set_footer(text="Demandée par {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                     await search_message.edit(embed=embed)
-                else:
+
+                # Ajout du titre
+
+                queue.append({
+                    "url": first.get("url"),
+                    "title": first.get("title"),
+                    "duration": first.get("duration"),
+                    "author": ctx.author.name,
+                    "avatar": ctx.author.avatar.url
+                })
+
+                if playing["state"] == 0:
+                    # Lecture du titre
+
+                    playing["state"] = 2
+
                     await self.play_next(ctx, search_message)
             else:
+                # Plusieurs résultats (venant d'une playlist/mix YouTube)
+                # !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
+
                 entries: list[dict] = info["entries"]
 
-                songs = []
-                for entry in entries:
-                    songs.append({
-                        "url": entry.get("url"),
-                        "title": entry.get("title"),
-                        "duration": entry.get("duration"),
-                        "author": ctx.author.name,
-                        "avatar": ctx.author.avatar.url
-                    })
-
-                queue.extend(songs)
+                # Envoi de l'embed informatif
 
                 embed = discord.Embed()
                 embed.color = discord.Color.from_str("#73BCFF")
@@ -247,20 +262,30 @@ class Player(commands.Cog):
 
                 await search_message.edit(embed=embed)
 
-                if not self.bot.data[ctx.guild.id]["playing"]:
+                # Ajout des titres
+
+                for entry in entries:
+                    queue.append({
+                        "url": entry.get("url"),
+                        "title": entry.get("title"),
+                        "duration": entry.get("duration"),
+                        "author": ctx.author.name,
+                        "avatar": ctx.author.avatar.url
+                    })
+
+                if playing["state"] == 0:
+                    # Lecture du premier titre
+
+                    playing["state"] = 2
+
                     await self.play_next(ctx)
         else:
-            song = {
-                "url": info.get("webpage_url"),
-                "title": info.get("title"),
-                "duration": info.get("duration"),
-                "author": ctx.author.name,
-                "avatar": ctx.author.avatar.url
-            }
+            # Un seul résultat (venant d'une URL YouTube)
+            # !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
 
-            queue.append(song)
+            if queue or playing["state"] != 0:
+                # Envoi de l'embed informatif
 
-            if self.bot.data[ctx.guild.id]["playing"]:
                 embed = discord.Embed()
                 embed.color = discord.Color.from_str("#73BCFF")
                 embed.title = "📌 Ajoutée à la file d'attente"
@@ -278,7 +303,22 @@ class Player(commands.Cog):
                 embed.set_footer(text="Demandée par {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                 await search_message.edit(embed=embed)
-            else:
+
+            # Ajout du titre
+
+            queue.append({
+                "url": info.get("webpage_url"),
+                "title": info.get("title"),
+                "duration": info.get("duration"),
+                "author": ctx.author.name,
+                "avatar": ctx.author.avatar.url
+            })
+
+            if playing["state"] == 0:
+                # Lecture du titre
+
+                playing["state"] = 2
+
                 await self.play_next(ctx, search_message)
 
 async def setup(bot: AlvesMusic):
