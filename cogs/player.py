@@ -27,7 +27,7 @@ class Player(commands.Cog):
 
         queue: list[dict] = data["queue"]
         if not queue:
-            data["playing"]["state"] = 0
+            data["player_state"] = 0
             await voice.disconnect()
 
             embed = discord.Embed()
@@ -63,8 +63,8 @@ class Player(commands.Cog):
         song["view_count"] = info.get("view_count")
         song["thumbnail"] = info.get("thumbnail")
 
-        data["playing"]["song"] = song
-        data["playing"]["state"] = 1
+        data["playing"] = song
+        data["player_state"] = 1
 
         # Envoi de l'embed de lecture
 
@@ -95,7 +95,7 @@ class Player(commands.Cog):
         except Exception as err:
             # Erreur lors de l'exécution de "play_audio()"
 
-            self.bot.data[ctx.guild.id]["playing"]["state"] = 0
+            self.bot.data[ctx.guild.id]["player_state"] = 0
 
             voice: discord.VoiceClient = ctx.voice_client
             if voice:
@@ -144,7 +144,7 @@ class Player(commands.Cog):
 
         # Recherche du ou des titres
 
-        playing: dict = self.bot.data[ctx.guild.id]["playing"]
+        data: dict = self.bot.data[ctx.guild.id]
 
         try:
             info = await self.bot.loop.run_in_executor(None, extract, query)
@@ -152,7 +152,7 @@ class Player(commands.Cog):
             # Erreur lors de l'exécution de la recherche
 
             voice: discord.VoiceClient = ctx.voice_client
-            if voice and playing["state"] == 0:
+            if voice and data["player_state"] == 0:
                 await voice.disconnect()
 
             embed = discord.Embed()
@@ -162,7 +162,7 @@ class Player(commands.Cog):
 
             return await search_message.edit(embed=embed)
 
-        queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
+        queue: list[dict] = data["queue"]
 
         if "entries" in info:
             # Aucun, un ou plusieurs résultat(s)
@@ -183,7 +183,7 @@ class Player(commands.Cog):
 
                 first: dict = info["entries"][0]
 
-                if queue or playing["state"] != 0:
+                if queue or data["player_state"] != 0:
                     # Envoi de l'embed informatif
 
                     embed = discord.Embed()
@@ -216,10 +216,10 @@ class Player(commands.Cog):
                     "avatar": ctx.author.avatar.url
                 })
 
-                if playing["state"] == 0:
+                if data["player_state"] == 0:
                     # Lecture du titre
 
-                    playing["state"] = 2
+                    data["player_state"] = 2
 
                     await self.next(ctx, search_message)
             else:
@@ -258,17 +258,17 @@ class Player(commands.Cog):
                         "avatar": ctx.author.avatar.url
                     })
 
-                if playing["state"] == 0:
+                if data["player_state"] == 0:
                     # Lecture du premier titre
 
-                    playing["state"] = 2
+                    data["player_state"] = 2
 
                     await self.next(ctx)
         else:
             # Un seul résultat (issu d'une URL YouTube)
             # Exemple : !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
 
-            if queue or playing["state"] != 0:
+            if queue or data["player_state"] != 0:
                 # Envoi de l'embed informatif
 
                 embed = discord.Embed()
@@ -301,10 +301,10 @@ class Player(commands.Cog):
                 "avatar": ctx.author.avatar.url
             })
 
-            if playing["state"] == 0:
+            if data["player_state"] == 0:
                 # Lecture du titre
 
-                playing["state"] = 2
+                data["player_state"] = 2
 
                 await self.next(ctx, search_message)
 

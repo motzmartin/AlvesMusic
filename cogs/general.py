@@ -47,9 +47,9 @@ class General(commands.Cog):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        playing: dict = self.bot.data[ctx.guild.id]["playing"]
-        if playing["state"] == 1:
-            song = playing["song"]
+        data: dict = self.bot.data[ctx.guild.id]
+        if data["player_state"] == 1:
+            song = data["playing"]
 
             embed.title = "🔊 En train de jouer"
             if song["title"] and song["url"]:
@@ -119,8 +119,7 @@ class General(commands.Cog):
 
         if ctx.author.voice:
             voice: discord.VoiceClient = ctx.voice_client
-            playing: dict = self.bot.data[ctx.guild.id]["playing"]
-            if voice and playing["state"] == 1:
+            if voice and self.bot.data[ctx.guild.id]["player_state"] == 1:
                 voice.stop()
 
                 embed.title = "⏭️ Musique suivante"

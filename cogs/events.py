@@ -13,19 +13,17 @@ class Events(commands.Cog):
         for guild in self.bot.guilds:
             self.bot.data[guild.id] = {
                 "queue": [],
+                "player_state": 0,
                 "playing": {
-                    "state": 0,
-                    "song": {
-                        "url": "",
-                        "title": "",
-                        "duration": "",
-                        "author": "",
-                        "avatar": "",
-                        "channel": "",
-                        "channel_url": "",
-                        "view_count": "",
-                        "thumbnail": ""
-                    }
+                    "url": "",
+                    "title": "",
+                    "duration": 0,
+                    "author": "",
+                    "avatar": "",
+                    "channel": "",
+                    "channel_url": "",
+                    "view_count": 0,
+                    "thumbnail": ""
                 }
             }
 
