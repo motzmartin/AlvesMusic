@@ -204,6 +204,8 @@ class Player(commands.Cog):
 
                     await search_message.edit(embed=embed)
 
+                    search_message = None
+
                 # Ajout du titre
 
                 queue.append({
@@ -286,6 +288,8 @@ class Player(commands.Cog):
                 embed.set_footer(text="Demandée par {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                 await search_message.edit(embed=embed)
+
+                search_message = None
 
             # Ajout du titre
 
