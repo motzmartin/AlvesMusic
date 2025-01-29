@@ -14,24 +14,14 @@ class Player(commands.Cog):
     def __init__(self, bot: AlvesMusic):
         self.bot = bot
 
-    async def play_next(self, ctx: commands.Context, search_message: discord.Message = None):
+    async def play_audio(self, ctx: commands.Context, search_message: discord.Message = None):
         # Vérifie si le bot est toujours connecté au salon vocal
 
         data: dict = self.bot.data[ctx.guild.id]
 
         voice: discord.VoiceClient = ctx.voice_client
         if not voice:
-            data["playing"]["state"] = 0
-
-            embed = discord.Embed()
-            embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Erreur lors de la lecture"
-            embed.description = "Le bot a quitté le salon vocal."
-
-            if search_message:
-                return await search_message.edit(embed=embed)
-
-            return await ctx.send(embed=embed)
+            raise Exception("Le bot a quitté le salon vocal.")
 
         # Vérifie si la file d'attente est vide
 
@@ -47,33 +37,14 @@ class Player(commands.Cog):
 
             return await ctx.send(embed=embed)
 
-        # Récupération de l'audio du titre
+        # Extraction de l'URL audio
 
         song = queue.pop(0)
 
-        try:
-            info = await self.bot.loop.run_in_executor(None, extract_audio, song["url"])
+        info = await self.bot.loop.run_in_executor(None, extract_audio, song["url"])
 
-            if not info.get("url"):
-                raise ValueError("Impossible d'extraire l'URL audio.")
-        except Exception as e:
-            # Erreur yt-dlp
-
-            data["playing"]["state"] = 0
-
-            voice: discord.VoiceClient = ctx.voice_client
-            if voice:
-                await voice.disconnect()
-
-            embed = discord.Embed()
-            embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Erreur lors de l'extraction de l'audio"
-            embed.description = "Raison : `{}`".format(e)
-
-            if search_message:
-                return await search_message.edit(embed=embed)
-
-            return await ctx.send(embed=embed)
+        if not info.get("url"):
+            raise Exception("Impossible d'extraire l'URL audio.")
 
         # Lecture du titre
 
@@ -81,21 +52,11 @@ class Player(commands.Cog):
 
         voice: discord.VoiceClient = ctx.voice_client
         if not voice:
-            data["playing"]["state"] = 0
+            raise Exception("Le bot a quitté le salon vocal.")
 
-            embed = discord.Embed()
-            embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Erreur lors de la lecture"
-            embed.description = "Le bot a quitté le salon vocal."
+        voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(self.next(ctx), self.bot.loop))
 
-            if search_message:
-                return await search_message.edit(embed=embed)
-
-            return await ctx.send(embed=embed)
-
-        voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(self.play_next(ctx), self.bot.loop))
-
-        # Mise à jour du titre en cours
+        # Mise à jour de la chanson en cours de lecture
 
         song["channel"] = info.get("channel")
         song["channel_url"] = info.get("channel_url")
@@ -127,6 +88,28 @@ class Player(commands.Cog):
             await search_message.edit(embed=embed)
         else:
             await ctx.send(embed=embed)
+
+    async def next(self, ctx: commands.Context, search_message: discord.Message = None):
+        try:
+            await self.play_audio(ctx, search_message)
+        except Exception as err:
+            # Erreur lors de l'exécution de "play_audio()"
+
+            self.bot.data[ctx.guild.id]["playing"]["state"] = 0
+
+            voice: discord.VoiceClient = ctx.voice_client
+            if voice:
+                await voice.disconnect()
+
+            embed = discord.Embed()
+            embed.color = discord.Color.from_str("#73BCFF")
+            embed.title = "❌ Erreur lors de la lecture de l'audio"
+            embed.description = "`{}`".format(err)
+
+            if search_message:
+                await search_message.edit(embed=embed)
+            else:
+                await ctx.send(embed=embed)
 
     @commands.command()
     async def play(self, ctx: commands.Context, *, query: str):
@@ -165,8 +148,8 @@ class Player(commands.Cog):
 
         try:
             info = await self.bot.loop.run_in_executor(None, extract, query)
-        except Exception as e:
-            # Erreur yt-dlp
+        except Exception as err:
+            # Erreur lors de l'exécution de la recherche
 
             voice: discord.VoiceClient = ctx.voice_client
             if voice and playing["state"] == 0:
@@ -175,7 +158,7 @@ class Player(commands.Cog):
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
             embed.title = "❌ Erreur lors de la recherche"
-            embed.description = "Raison : `{}`".format(e)
+            embed.description = "`{}`".format(err)
 
             return await search_message.edit(embed=embed)
 
@@ -186,7 +169,7 @@ class Player(commands.Cog):
 
             if not info["entries"]:
                 # Aucun résultat, envoi de l'embed informatif
-                # !play unyoxhgikwdbplecfjqa
+                # Exemple : !play unyoxhgikwdbplecfjqa
 
                 embed = discord.Embed()
                 embed.color = discord.Color.from_str("#73BCFF")
@@ -195,8 +178,8 @@ class Player(commands.Cog):
 
                 await search_message.edit(embed=embed)
             elif len(info["entries"]) == 1:
-                # Un seul résultat (souvent venant d'une recherche)
-                # !play calogero 1987
+                # Un seul résultat (souvent issu d'une recherche)
+                # Exemple : !play calogero 1987
 
                 first: dict = info["entries"][0]
 
@@ -236,10 +219,10 @@ class Player(commands.Cog):
 
                     playing["state"] = 2
 
-                    await self.play_next(ctx, search_message)
+                    await self.next(ctx, search_message)
             else:
-                # Plusieurs résultats (venant d'une playlist/mix YouTube)
-                # !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
+                # Plusieurs résultats (issus d'une playlist/mix YouTube)
+                # Exemple : !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
 
                 entries: list[dict] = info["entries"]
 
@@ -278,10 +261,10 @@ class Player(commands.Cog):
 
                     playing["state"] = 2
 
-                    await self.play_next(ctx)
+                    await self.next(ctx)
         else:
-            # Un seul résultat (venant d'une URL YouTube)
-            # !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
+            # Un seul résultat (issu d'une URL YouTube)
+            # Exemple : !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
 
             if queue or playing["state"] != 0:
                 # Envoi de l'embed informatif
@@ -319,7 +302,7 @@ class Player(commands.Cog):
 
                 playing["state"] = 2
 
-                await self.play_next(ctx, search_message)
+                await self.next(ctx, search_message)
 
 async def setup(bot: AlvesMusic):
     await bot.add_cog(Player(bot))
