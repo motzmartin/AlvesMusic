@@ -89,12 +89,12 @@ class Player(commands.Cog):
         else:
             await ctx.send(embed=embed)
 
-    async def next_after(self, ctx: commands.Context, search_message: discord.Message = None):
+    async def next_after(self, ctx: commands.Context):
         # Appelle "next()" lorsque l'audio se termine ou est interrompu
 
         self.bot.data[ctx.guild.id]["player_state"] = 0
 
-        next(ctx, search_message)
+        self.next(ctx)
 
     async def next(self, ctx: commands.Context, search_message: discord.Message = None):
         # Lance l'audio si aucun titre n'est en cours
