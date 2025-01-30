@@ -94,7 +94,7 @@ class Player(commands.Cog):
 
         self.bot.data[ctx.guild.id]["player_state"] = 0
 
-        self.next(ctx)
+        await self.next(ctx)
 
     async def next(self, ctx: commands.Context, search_message: discord.Message = None):
         # Lance l'audio si aucun titre n'est en cours
