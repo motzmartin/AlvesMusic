@@ -90,12 +90,21 @@ class Player(commands.Cog):
             await ctx.send(embed=embed)
 
     async def next(self, ctx: commands.Context, search_message: discord.Message = None):
+        # Lance l'audio si aucun titre n'est en cours
+
+        data: dict = self.bot.data[ctx.guild.id]
+
+        if data["player_state"] != 0:
+            return
+
+        data["player_state"] = 2
+
         try:
             await self.play_audio(ctx, search_message)
         except Exception as err:
             # Erreur lors de l'exécution de "play_audio()"
 
-            self.bot.data[ctx.guild.id]["player_state"] = 0
+            data["player_state"] = 0
 
             voice: discord.VoiceClient = ctx.voice_client
             if voice:
@@ -216,12 +225,9 @@ class Player(commands.Cog):
                     "avatar": ctx.author.avatar.url
                 })
 
-                if data["player_state"] == 0:
-                    # Lecture du titre
+                # Lecture du titre si nécessaire
 
-                    data["player_state"] = 2
-
-                    await self.next(ctx, search_message)
+                await self.next(ctx, search_message)
             else:
                 # Plusieurs résultats (issus d'une playlist/mix YouTube)
                 # Exemple : !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
@@ -258,12 +264,9 @@ class Player(commands.Cog):
                         "avatar": ctx.author.avatar.url
                     })
 
-                if data["player_state"] == 0:
-                    # Lecture du premier titre
+                # Lecture du premier titre si nécessaire
 
-                    data["player_state"] = 2
-
-                    await self.next(ctx)
+                await self.next(ctx)
         else:
             # Un seul résultat (issu d'une URL YouTube)
             # Exemple : !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
@@ -301,12 +304,9 @@ class Player(commands.Cog):
                 "avatar": ctx.author.avatar.url
             })
 
-            if data["player_state"] == 0:
-                # Lecture du titre
+            # Lecture du titre si nécessaire
 
-                data["player_state"] = 2
-
-                await self.next(ctx, search_message)
+            await self.next(ctx, search_message)
 
 async def setup(bot: AlvesMusic):
     await bot.add_cog(Player(bot))
