@@ -119,9 +119,7 @@ class General(commands.Cog):
 
         if ctx.author.voice:
             voice: discord.VoiceClient = ctx.voice_client
-            data: dict = self.bot.data[ctx.guild.id]
-            if voice and data["player_state"] == 1:
-                data["player_state"] = 0
+            if voice and self.bot.data[ctx.guild.id]["player_state"] == 1:
                 voice.stop()
 
                 embed.title = "⏭️ Musique suivante"

@@ -54,7 +54,7 @@ class Player(commands.Cog):
         if not voice:
             raise Exception("Le bot a quitté le salon vocal")
 
-        voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(self.next(ctx), self.bot.loop))
+        voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(self.next_after(ctx), self.bot.loop))
 
         # Mise à jour de la chanson en cours de lecture
 
@@ -88,6 +88,13 @@ class Player(commands.Cog):
             await search_message.edit(embed=embed)
         else:
             await ctx.send(embed=embed)
+
+    async def next_after(self, ctx: commands.Context, search_message: discord.Message = None):
+        # Appelle "next()" lorsque l'audio se termine ou est interrompu
+
+        self.bot.data[ctx.guild.id]["player_state"] = 0
+
+        next(ctx, search_message)
 
     async def next(self, ctx: commands.Context, search_message: discord.Message = None):
         # Lance l'audio si aucun titre n'est en cours
