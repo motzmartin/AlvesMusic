@@ -1,8 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
-from ydl import extract, extract_audio
-from utils import duration_str
+from utils import duration_str, extract, extract_audio
 from alvesmusic import AlvesMusic
 
 FFMPEG_OPTIONS = {
