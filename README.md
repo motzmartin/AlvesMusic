@@ -1,4 +1,4 @@
-# AlvesMusic - A Discord Music Bot Playing from YouTube
+# 🎶 AlvesMusic - A Discord Music Bot Playing from YouTube
 
 AlvesMusic is a simple yet powerful Discord music bot that allows you to **play music from YouTube**
 directly in your voice channels.
