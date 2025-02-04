@@ -10,13 +10,13 @@ class General(commands.Cog):
 
     @commands.command()
     async def queue(self, ctx: commands.Context, page: int = 1):
-        embed = discord.Embed()
-        embed.color = discord.Color.from_str("#73BCFF")
-
         queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
         max_page = 1 if not queue else (len(queue) + 19) // 20
 
         if page >= 1 and page <= max_page:
+            embed = discord.Embed()
+            embed.color = discord.Color.from_str("#73BCFF")
+
             if queue:
                 queue_list = ""
                 for i in range((page - 1) * 20, min(page * 20, len(queue))):
@@ -32,7 +32,6 @@ class General(commands.Cog):
                     embed.title += "s"
                 embed.title += ")"
                 embed.description = queue_list
-
                 embed.add_field(name="Durée totale", value=duration_str(sum(song["duration"] for song in queue if song["duration"])))
             else:
                 embed.title = "📭 File d'attente vide"
@@ -47,14 +46,17 @@ class General(commands.Cog):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
+        voice: discord.VoiceClient = ctx.voice_client
         data: dict = self.bot.data[ctx.guild.id]
-        if data["player_state"] == 1:
+        if voice and data["player_state"] == 1:
             song = data["playing"]
 
-            embed.title = "🔊 En train de jouer"
+            if voice.is_paused():
+                embed.title = "⏸️ En pause"
+            else:
+                embed.title = "🔊 En train de jouer"
             if song["title"] and song["url"]:
                 embed.description = "[**{}**]({})".format(song["title"], song["url"])
-
             if song["channel"] and song["channel_url"]:
                 embed.add_field(name="Chaîne", value="[{}]({})".format(song["channel"], song["channel_url"]))
             if song["view_count"]:
@@ -119,7 +121,8 @@ class General(commands.Cog):
 
         if ctx.author.voice:
             voice: discord.VoiceClient = ctx.voice_client
-            if voice and self.bot.data[ctx.guild.id]["player_state"] == 1:
+            data: dict = self.bot.data[ctx.guild.id]
+            if voice and data["player_state"] == 1:
                 voice.stop()
 
                 embed.title = "⏭️ Musique suivante"
@@ -134,14 +137,14 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def stop(self, ctx: commands.Context):
+    async def reset(self, ctx: commands.Context):
         if ctx.author.voice:
             await ctx.invoke(self.clear)
             await ctx.invoke(self.skip)
         else:
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Impossible de d'arrêter le bot"
+            embed.title = "❌ Impossible de de réinitialiser le bot"
             embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
 
             await ctx.send(embed=embed)
