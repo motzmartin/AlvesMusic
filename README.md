@@ -92,6 +92,8 @@ The bot requires:
 
 - `PyNaCl` (for cryptographic operations and voice support in Discord bots)
 
+- `millify` (for view count formatting)
+
 ### 4. Install FFmpeg (Required for Audio)
 
 - **Windows:**
