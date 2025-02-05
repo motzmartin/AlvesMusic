@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 from alvesmusic import AlvesMusic
 
 class Help(commands.Cog):
@@ -11,6 +12,7 @@ class Help(commands.Cog):
         embed = discord.Embed()
         embed.title = "💡 Commandes disponibles :"
         embed.color = discord.Color.from_str("#73BCFF")
+
         embed.add_field(name="**!play <recherche|url>**", value="Joue une musique/playlist ou l'ajoute à la file d'attente.", inline=False)
         embed.add_field(name="**!queue [page]**", value="Affiche la file d'attente actuelle.", inline=False)
         embed.add_field(name="**!playing**", value="Affiche la musique actuellement en lecture.", inline=False)

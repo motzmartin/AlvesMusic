@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+
 from alvesmusic import AlvesMusic
 
 load_dotenv()

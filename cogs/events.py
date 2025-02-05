@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 from alvesmusic import AlvesMusic
 
 class Events(commands.Cog):
@@ -14,17 +15,7 @@ class Events(commands.Cog):
             self.bot.data[guild.id] = {
                 "queue": [],
                 "player_state": 0,
-                "playing": {
-                    "url": "",
-                    "title": "",
-                    "duration": 0,
-                    "author": "",
-                    "avatar": "",
-                    "channel": "",
-                    "channel_url": "",
-                    "view_count": 0,
-                    "thumbnail": ""
-                }
+                "playing": {}
             }
 
         activity = discord.Game(name="(*de la) musique.")

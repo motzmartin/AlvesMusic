@@ -1,7 +1,8 @@
 import random
 import discord
 from discord.ext import commands
-from utils import duration_str
+
+from utils import timecode
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -24,7 +25,7 @@ class General(commands.Cog):
                     if song["title"] and song["url"]:
                         queue_list += "**{}.** [**{}**]({})".format(i + 1, song["title"], song["url"])
                     if song["duration"]:
-                        queue_list += " ({})".format(duration_str(song["duration"]))
+                        queue_list += " ({})".format(timecode(song["duration"]))
                     queue_list += " *{}*\n".format(song["author"])
 
                 embed.title = "📜 File d'attente - Page {}/{} ({} titre".format(page, max_page, len(queue))
@@ -32,7 +33,7 @@ class General(commands.Cog):
                     embed.title += "s"
                 embed.title += ")"
                 embed.description = queue_list
-                embed.add_field(name="Durée totale", value=duration_str(sum(song["duration"] for song in queue if song["duration"])))
+                embed.add_field(name="Durée totale", value=timecode(sum(song["duration"] for song in queue if song["duration"])))
             else:
                 embed.title = "📭 File d'attente vide"
                 embed.description = "Aucune musique en attente."
@@ -49,7 +50,7 @@ class General(commands.Cog):
         voice: discord.VoiceClient = ctx.voice_client
         data: dict = self.bot.data[ctx.guild.id]
         if voice and data["player_state"] == 1:
-            song = data["playing"]
+            song: dict = data["playing"]
 
             if voice.is_paused():
                 embed.title = "⏸️ En pause"
@@ -62,7 +63,7 @@ class General(commands.Cog):
             if song["view_count"]:
                 embed.add_field(name="Vues", value="{:,}".format(song["view_count"]).replace(",", " "))
             if song["duration"]:
-                embed.add_field(name="Durée", value=duration_str(song["duration"]))
+                embed.add_field(name="Durée", value=timecode(song["duration"]))
             if song["thumbnail"]:
                 embed.set_thumbnail(url=song["thumbnail"])
             embed.set_footer(text="Demandée par {}".format(song["author"]), icon_url=song["avatar"])
