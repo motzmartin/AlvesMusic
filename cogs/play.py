@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from millify import millify
 
 from alvesmusic import AlvesMusic
 from utils import extract, timecode
@@ -11,17 +12,17 @@ class Play(commands.Cog):
 
     @commands.command()
     async def play(self, ctx: commands.Context, *, query: str):
-        # Vérifie si l'utilisateur est dans un salon vocal
+        # Check if the user is in a voice channel
 
         if not ctx.author.voice:
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Impossible de lire la musique"
-            embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
+            embed.title = "❌ Unable to play music"
+            embed.description = "You must be in a voice channel to use this command."
 
             return await ctx.send(embed=embed)
 
-        # Se connecte ou change de salon si nécessaire
+        # Connect or move to the correct voice channel if necessary
 
         voice: discord.VoiceClient = ctx.voice_client
         author_channel = ctx.author.voice.channel
@@ -31,23 +32,23 @@ class Play(commands.Cog):
         else:
             await author_channel.connect()
 
-        # Envoi de l'embed de recherche
+        # Sending the search embed
 
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
-        embed.title = "🔍 Recherche en cours"
-        embed.description = "Recherche de **{}** en cours, cela peut prendre un instant.".format(query)
+        embed.title = "🔍 Searching"
+        embed.description = "Searching for **{}**, this may take a moment.".format(query)
 
         search_message = await ctx.send(embed=embed)
 
-        # Recherche du ou des titres
+        # Searching for the track(s)
 
         data: dict = self.bot.data[ctx.guild.id]
 
         try:
             info = await self.bot.loop.run_in_executor(None, extract, query)
         except Exception as err:
-            # Erreur lors de la recherche
+            # Error during search
 
             voice: discord.VoiceClient = ctx.voice_client
             if voice and data["player_state"] == 0:
@@ -55,7 +56,7 @@ class Play(commands.Cog):
 
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Erreur lors de la recherche"
+            embed.title = "❌ Error during search"
             embed.description = "`{}`".format(err)
 
             return await search_message.edit(embed=embed)
@@ -63,21 +64,21 @@ class Play(commands.Cog):
         queue: list[dict] = data["queue"]
 
         if "entries" in info:
-            # Aucun, un ou plusieurs résultat(s)
+            # No, one, or multiple results
 
             if not info["entries"]:
-                # Aucun résultat, envoi de l'embed informatif
-                # Exemple : !play unyoxhgikwdbplecfjqa
+                # No results, sending the informational embed
+                # Example: !play unyoxhgikwdbplecfjqa
 
                 embed = discord.Embed()
                 embed.color = discord.Color.from_str("#73BCFF")
-                embed.title = "❌ Aucun résultat"
-                embed.description = "Aucun résultat trouvé pour **{}**.".format(query)
+                embed.title = "❌ No results"
+                embed.description = "No results found for **{}**.".format(query)
 
                 await search_message.edit(embed=embed)
             elif len(info["entries"]) == 1:
-                # Un seul résultat (souvent issu d'une recherche)
-                # Exemple : !play calogero 1987
+                # A single result (often from a search)
+                # Example: !play calogero 1987
 
                 first: dict = info["entries"][0]
 
@@ -90,39 +91,39 @@ class Play(commands.Cog):
                 }
 
                 if data["player_state"] != 0:
-                    # Ajout à la file d'attente
+                    # Adding to the queue
 
                     queue.append(song)
 
-                    # Envoi de l'embed informatif
+                    # Sending the informational embed
 
                     embed = discord.Embed()
                     embed.color = discord.Color.from_str("#73BCFF")
-                    embed.title = "📌 Ajoutée à la file d'attente"
+                    embed.title = "📌 Added to queue"
                     if first.get("title") and first.get("url"):
-                        embed.description = "La musique [**{}**]({}) a été ajoutée à la file d'attente.".format(first["title"], first["url"])
+                        embed.description = "The song [**{}**]({}) has been added to the queue.".format(first["title"], first["url"])
                     if first.get("channel") and first.get("channel_url"):
-                        embed.add_field(name="Chaîne", value="[{}]({})".format(first["channel"], first["channel_url"]))
+                        embed.add_field(name="Channel", value="[{}]({})".format(first["channel"], first["channel_url"]))
                     if first.get("view_count"):
-                        embed.add_field(name="Vues", value="{:,}".format(first["view_count"]).replace(",", " "))
+                        embed.add_field(name="Views", value=millify(first["view_count"]))
                     if first.get("duration"):
-                        embed.add_field(name="Durée", value=timecode(first["duration"]))
+                        embed.add_field(name="Duration", value=timecode(first["duration"]))
                     if first.get("id"):
-                        embed.set_thumbnail(url="https://i.ytimg.com/vi/{}/hqdefault.jpg".format(first["id"]))
-                    embed.set_footer(text="Demandée par {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
+                        embed.set_thumbnail(url="https://i.ytimg.com/vi_webp/{}/maxresdefault.webp".format(first["id"]))
+                    embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                     await search_message.edit(embed=embed)
                 else:
-                    # Lecture du titre
+                    # Playing the track
 
                     await play_song(self.bot, ctx, song, search_message)
             else:
-                # Plusieurs résultats (issus d'une playlist/mix YouTube)
-                # Exemple : !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
+                # Multiple results (from a YouTube playlist/mix)
+                # Example: !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
 
                 entries: list[dict] = info["entries"]
 
-                # Ajout des titres
+                # Adding the tracks
 
                 for entry in entries:
                     queue.append({
@@ -133,31 +134,31 @@ class Play(commands.Cog):
                         "avatar": ctx.author.avatar.url
                     })
 
-                # Envoi de l'embed informatif
+                # Sending the informational embed
 
                 embed = discord.Embed()
                 embed.color = discord.Color.from_str("#73BCFF")
-                embed.title = "📌 Ajoutées à la file d'attente"
+                embed.title = "📌 Added to queue"
                 if info.get("title") and info.get("webpage_url"):
-                    embed.description = "Les **{}** titres de la playlist [**{}**]({}) ont été ajoutées à la file d'attente.".format(len(info["entries"]), info["title"], info["webpage_url"])
+                    embed.description = "The **{}** tracks from the playlist [**{}**]({}) have been added to the queue.".format(len(info["entries"]), info["title"], info["webpage_url"])
                 if info.get("channel") and info.get("channel_url"):
-                    embed.add_field(name="Chaîne", value="[{}]({})".format(info["channel"], info["channel_url"]))
+                    embed.add_field(name="Channel", value="[{}]({})".format(info["channel"], info["channel_url"]))
                 if info.get("view_count"):
-                    embed.add_field(name="Vues", value="{:,}".format(info["view_count"]).replace(",", " "))
-                embed.add_field(name="Durée totale", value=timecode(sum(entry["duration"] for entry in entries if entry.get("duration"))))
+                    embed.add_field(name="Views", value=millify(info["view_count"]))
+                embed.add_field(name="Total Duration", value=timecode(sum(entry["duration"] for entry in entries if entry.get("duration"))))
                 if entries[0].get("id"):
-                    embed.set_thumbnail(url="https://i.ytimg.com/vi/{}/hqdefault.jpg".format(entries[0]["id"]))
-                embed.set_footer(text="Demandée par {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
+                    embed.set_thumbnail(url="https://i.ytimg.com/vi_webp/{}/maxresdefault.webp".format(entries[0]["id"]))
+                embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                 await search_message.edit(embed=embed)
 
-                # Lecture du premier titre s'il n'y a aucune chanson en cours
+                # Play the first track if no song is currently playing
 
                 if data["player_state"] == 0:
                     await play_song(self.bot, ctx, queue.pop(0))
         else:
-            # Un seul résultat (issu d'une URL YouTube)
-            # Exemple : !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
+            # A single result (from a YouTube URL)
+            # Example: !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
 
             song = {
                 "url": info.get("webpage_url"),
@@ -168,30 +169,30 @@ class Play(commands.Cog):
             }
 
             if data["player_state"] != 0:
-                # Ajout à la file d'attente
+                # Adding to the queue
 
                 queue.append(song)
 
-                # Envoi de l'embed informatif
+                # Sending the informational embed
 
                 embed = discord.Embed()
                 embed.color = discord.Color.from_str("#73BCFF")
-                embed.title = "📌 Ajoutée à la file d'attente"
+                embed.title = "📌 Added to queue"
                 if info.get("title") and info.get("webpage_url"):
-                    embed.description = "La musique [**{}**]({}) a été ajoutée à la file d'attente.".format(info["title"], info["webpage_url"])
+                    embed.description = "The song [**{}**]({}) has been added to the queue.".format(info["title"], info["webpage_url"])
                 if info.get("channel") and info.get("channel_url"):
-                    embed.add_field(name="Chaîne", value="[{}]({})".format(info["channel"], info["channel_url"]))
+                    embed.add_field(name="Channel", value="[{}]({})".format(info["channel"], info["channel_url"]))
                 if info.get("view_count"):
-                    embed.add_field(name="Vues", value="{:,}".format(info["view_count"]).replace(",", " "))
+                    embed.add_field(name="Views", value=millify(info["view_count"]))
                 if info.get("duration"):
-                    embed.add_field(name="Durée", value=timecode(info["duration"]))
+                    embed.add_field(name="Duration", value=timecode(info["duration"]))
                 if info.get("thumbnail"):
                     embed.set_thumbnail(url=info["thumbnail"])
-                embed.set_footer(text="Demandée par {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
+                embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                 await search_message.edit(embed=embed)
             else:
-                # Lecture du titre
+                # Playing the track
 
                 await play_song(self.bot, ctx, song, search_message)
 

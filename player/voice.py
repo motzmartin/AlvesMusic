@@ -1,6 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
+from millify import millify
 
 from alvesmusic import AlvesMusic
 from utils import extract_audio, timecode
@@ -19,26 +20,26 @@ async def play_song(bot: AlvesMusic, ctx: commands.Context, song: dict, search_m
     embed.color = discord.Color.from_str("#73BCFF")
 
     try:
-        # Extraction de l'URL audio
+        # Extracting the audio URL
 
         data["player_state"] = 2
 
         info = await bot.loop.run_in_executor(None, extract_audio, song["url"])
 
         if not info.get("url"):
-            raise Exception("Impossible d'extraire l'URL audio.")
+            raise Exception("Unable to extract the audio URL.")
 
-        # Lecture du titre
+        # Playing the track
 
         source = discord.FFmpegOpusAudio(info["url"], **FFMPEG_OPTIONS)
 
         voice: discord.VoiceClient = ctx.voice_client
         if not voice:
-            raise Exception("Le bot a quitté le salon vocal.")
+            raise Exception("The bot has left the voice channel.")
 
         voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(next_song(bot, ctx), bot.loop))
 
-        # Mise à jour de la chanson en cours de lecture
+        # Updating the currently playing song
 
         song["channel"] = info.get("channel")
         song["channel_url"] = info.get("channel_url")
@@ -48,22 +49,22 @@ async def play_song(bot: AlvesMusic, ctx: commands.Context, song: dict, search_m
         data["playing"] = song
         data["player_state"] = 1
 
-        # Embed de lecture
+        # Playback embed
 
-        embed.title = "🎶 Lecture de la musique"
+        embed.title = "🎶 Now Playing"
         if info.get("title") and info.get("webpage_url"):
-            embed.description = "Lecture de [**{}**]({}) en cours.".format(info["title"], info["webpage_url"])
+            embed.description = "Now playing [**{}**]({})".format(info["title"], info["webpage_url"])
         if info.get("channel") and info.get("channel_url"):
-            embed.add_field(name="Chaîne", value="[{}]({})".format(info["channel"], info["channel_url"]))
+            embed.add_field(name="Channel", value="[{}]({})".format(info["channel"], info["channel_url"]))
         if info.get("view_count"):
-            embed.add_field(name="Vues", value="{:,}".format(info["view_count"]).replace(",", " "))
+            embed.add_field(name="Views", value=millify(info["view_count"]))
         if info.get("duration"):
-            embed.add_field(name="Durée", value=timecode(info["duration"]))
+            embed.add_field(name="Duration", value=timecode(info["duration"]))
         if info.get("thumbnail"):
             embed.set_thumbnail(url=info["thumbnail"])
-        embed.set_footer(text="Demandée par {}".format(song["author"]), icon_url=song["avatar"])
+        embed.set_footer(text="Requested by {}".format(song["author"]), icon_url=song["avatar"])
     except Exception as err:
-        # Erreur lors de la lecture
+        # Error while playing
 
         data["player_state"] = 0
 
@@ -71,12 +72,12 @@ async def play_song(bot: AlvesMusic, ctx: commands.Context, song: dict, search_m
         if voice:
             await voice.disconnect()
 
-        # Embed d'erreur de lecture
+        # Playback error embed
 
-        embed.title = "❌ Erreur lors de la lecture de l'audio"
+        embed.title = "❌ Error while playing audio"
         embed.description = "`{}`".format(err)
 
-    # Envoi de l'embed informatif
+    # Sending the informative embed
 
     if search_message:
         await search_message.edit(embed=embed)

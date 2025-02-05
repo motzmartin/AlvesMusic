@@ -25,19 +25,19 @@ directly in your voice channels.
 
   `!play calogero 1987`
 
-  ![screen1](https://github.com/user-attachments/assets/23f4f572-be18-4792-9057-e19e93c79c9c)
+  ![screen1](screenshots/screen1.png)
 
 - **Adding a playlist**
 
   `!play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43`
 
-  ![screen2](https://github.com/user-attachments/assets/dd93ae1c-6958-42d1-a797-2c8edc5bc32d)
+  ![screen2](screenshots/screen2.png)
 
 - **Displaying the queue**
 
   `!queue`
 
-  ![screen3](https://github.com/user-attachments/assets/aa7b9a82-d56d-424f-a1dc-c51f07138c16)
+  ![screen3](screenshots/screen3.png)
 
 ---
 

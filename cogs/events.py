@@ -18,27 +18,27 @@ class Events(commands.Cog):
                 "playing": {}
             }
 
-        activity = discord.Game(name="(*de la) musique.")
+        activity = discord.Game(name="!help")
         await self.bot.change_presence(activity=activity)
 
-        print("Connecté en tant que {}.".format(self.bot.user))
+        print("Connected as {}.".format(self.bot.user))
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
-        embed.title = "❌ Une erreur est survenue"
+        embed.title = "❌ An error occurred"
 
         raise_error = False
 
         if isinstance(error, commands.MissingRequiredArgument):
-            embed.description = "Cette commande nécessite un argument."
+            embed.description = "This command requires an argument."
         elif isinstance(error, commands.BadArgument):
-            embed.description = "L'argument fourni n'est pas valide."
+            embed.description = "The provided argument is not valid."
         elif isinstance(error, commands.CommandNotFound):
-            embed.description = "Cette commande n'existe pas. Essayez **!help** pour voir la liste des commandes."
+            embed.description = "This command does not exist. Try **!help** to see the list of commands."
         else:
-            embed.description = "Une erreur inconnue est survenue."
+            embed.description = "An unknown error occurred."
             raise_error = True
 
         await ctx.send(embed=embed)

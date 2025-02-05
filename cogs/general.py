@@ -1,6 +1,7 @@
 import random
 import discord
 from discord.ext import commands
+from millify import millify
 
 from utils import timecode
 from alvesmusic import AlvesMusic
@@ -28,15 +29,15 @@ class General(commands.Cog):
                         queue_list += " ({})".format(timecode(song["duration"]))
                     queue_list += " *{}*\n".format(song["author"])
 
-                embed.title = "📜 File d'attente - Page {}/{} ({} titre".format(page, max_page, len(queue))
+                embed.title = "📜 Queue - Page {}/{} ({} track".format(page, max_page, len(queue))
                 if len(queue) > 1:
                     embed.title += "s"
                 embed.title += ")"
                 embed.description = queue_list
-                embed.add_field(name="Durée totale", value=timecode(sum(song["duration"] for song in queue if song["duration"])))
+                embed.add_field(name="Total Duration", value=timecode(sum(song["duration"] for song in queue if song["duration"])))
             else:
-                embed.title = "📭 File d'attente vide"
-                embed.description = "Aucune musique en attente."
+                embed.title = "📭 Empty Queue"
+                embed.description = "No music in the queue."
 
             await ctx.send(embed=embed)
         else:
@@ -53,23 +54,23 @@ class General(commands.Cog):
             song: dict = data["playing"]
 
             if voice.is_paused():
-                embed.title = "⏸️ En pause"
+                embed.title = "⏸️ Paused"
             else:
-                embed.title = "🔊 En train de jouer"
+                embed.title = "🔊 Now Playing"
             if song["title"] and song["url"]:
                 embed.description = "[**{}**]({})".format(song["title"], song["url"])
             if song["channel"] and song["channel_url"]:
-                embed.add_field(name="Chaîne", value="[{}]({})".format(song["channel"], song["channel_url"]))
+                embed.add_field(name="Channel", value="[{}]({})".format(song["channel"], song["channel_url"]))
             if song["view_count"]:
-                embed.add_field(name="Vues", value="{:,}".format(song["view_count"]).replace(",", " "))
+                embed.add_field(name="Views", value=millify(song["view_count"]))
             if song["duration"]:
-                embed.add_field(name="Durée", value=timecode(song["duration"]))
+                embed.add_field(name="Duration", value=timecode(song["duration"]))
             if song["thumbnail"]:
                 embed.set_thumbnail(url=song["thumbnail"])
-            embed.set_footer(text="Demandée par {}".format(song["author"]), icon_url=song["avatar"])
+            embed.set_footer(text="Requested by {}".format(song["author"]), icon_url=song["avatar"])
         else:
-            embed.title = "🔇 Aucune musique en cours"
-            embed.description = "Aucune musique en cours de lecture."
+            embed.title = "🔇 No Music Playing"
+            embed.description = "There is no music currently playing."
 
         await ctx.send(embed=embed)
 
@@ -83,14 +84,14 @@ class General(commands.Cog):
             if queue:
                 queue.clear()
 
-                embed.title = "🗑️ File d'attente vidée"
-                embed.description = "Toutes les musiques ont été supprimées de la file d'attente."
+                embed.title = "🗑️ Queue Cleared"
+                embed.description = "All songs have been removed from the queue."
             else:
-                embed.title = "📭 File d'attente déjà vide"
-                embed.description = "Il n'y a aucune musique en attente."
+                embed.title = "📭 Queue Already Empty"
+                embed.description = "There are no songs in the queue."
         else:
-            embed.title = "❌ Impossible de vider la file d'attente"
-            embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
+            embed.title = "❌ Unable to Clear Queue"
+            embed.description = "You must be in a voice channel to use this command."
 
         await ctx.send(embed=embed)
 
@@ -104,14 +105,14 @@ class General(commands.Cog):
             if queue:
                 random.shuffle(queue)
 
-                embed.title = "🔀 File d'attente mélangée"
-                embed.description = "L'ordre des chansons a été aléatoirement modifié !"
+                embed.title = "🔀 Queue Shuffled"
+                embed.description = "The order of the songs has been randomly shuffled!"
             else:
-                embed.title = "❌ Impossible de mélanger"
-                embed.description = "La file d'attente est vide, ajoutez des chansons avant d'utiliser **!shuffle**."
+                embed.title = "❌ Unable to Shuffle"
+                embed.description = "The queue is empty, add some songs before using **!shuffle**."
         else:
-            embed.title = "❌ Impossible de mélanger"
-            embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
+            embed.title = "❌ Unable to Shuffle"
+            embed.description = "You must be in a voice channel to use this command."
 
         await ctx.send(embed=embed)
 
@@ -126,27 +127,27 @@ class General(commands.Cog):
             if voice and data["player_state"] == 1:
                 voice.stop()
 
-                embed.title = "⏭️ Musique suivante"
-                embed.description = "Lecture de la prochaine musique..."
+                embed.title = "⏭️ Skipping Song"
+                embed.description = "Playing the next song..."
             else:
-                embed.title = "❌ Impossible de passer à la musique suivante"
-                embed.description = "Aucune musique en cours de lecture."
+                embed.title = "❌ Unable to Skip"
+                embed.description = "There is no music currently playing."
         else:
-            embed.title = "❌ Impossible de passer à la musique suivante"
-            embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
+            embed.title = "❌ Unable to Skip"
+            embed.description = "You must be in a voice channel to use this command."
 
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def reset(self, ctx: commands.Context):
+    async def stop(self, ctx: commands.Context):
         if ctx.author.voice:
             await ctx.invoke(self.clear)
             await ctx.invoke(self.skip)
         else:
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Impossible de de réinitialiser le bot"
-            embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
+            embed.title = "❌ Unable to Stop the Bot"
+            embed.description = "You must be in a voice channel to use this command."
 
             await ctx.send(embed=embed)
 
@@ -160,14 +161,14 @@ class General(commands.Cog):
             if voice and voice.is_playing():
                 voice.pause()
 
-                embed.title = "⏸️ Lecture mise en pause"
-                embed.description = "Utilisez **!resume** pour reprendre la lecture."
+                embed.title = "⏸️ Playback Paused"
+                embed.description = "Use **!resume** to resume playback."
             else:
-                embed.title = "❌ Impossible de mettre en pause"
-                embed.description = "Aucune musique en cours de lecture."
+                embed.title = "❌ Unable to Pause"
+                embed.description = "There is no music currently playing."
         else:
-            embed.title = "❌ Impossible de mettre en pause"
-            embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
+            embed.title = "❌ Unable to Pause"
+            embed.description = "You must be in a voice channel to use this command."
 
         await ctx.send(embed=embed)
 
@@ -181,14 +182,14 @@ class General(commands.Cog):
             if voice and voice.is_paused():
                 voice.resume()
 
-                embed.title = "▶️ Lecture reprise"
-                embed.description = "La musique reprend là où elle s'était arrêtée."
+                embed.title = "▶️ Playback Resumed"
+                embed.description = "The music resumes from where it was paused."
             else:
-                embed.title = "❌ Impossible de reprendre"
-                embed.description = "Aucune musique n'est actuellement en pause."
+                embed.title = "❌ Unable to Resume"
+                embed.description = "No music is currently paused."
         else:
-            embed.title = "❌ Impossible de reprendre"
-            embed.description = "Tu dois être dans un salon vocal pour utiliser cette commande."
+            embed.title = "❌ Unable to Resume"
+            embed.description = "You must be in a voice channel to use this command."
 
         await ctx.send(embed=embed)
 

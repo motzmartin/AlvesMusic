@@ -10,18 +10,18 @@ class Help(commands.Cog):
     @commands.command(name="help")
     async def help_command(self, ctx: commands.Context):
         embed = discord.Embed()
-        embed.title = "💡 Commandes disponibles :"
+        embed.title = "💡 Available Commands"
         embed.color = discord.Color.from_str("#73BCFF")
 
-        embed.add_field(name="**!play <recherche|url>**", value="Joue une musique/playlist ou l'ajoute à la file d'attente.", inline=False)
-        embed.add_field(name="**!queue [page]**", value="Affiche la file d'attente actuelle.", inline=False)
-        embed.add_field(name="**!playing**", value="Affiche la musique actuellement en lecture.", inline=False)
-        embed.add_field(name="**!clear**", value="Vide la file d'attente.", inline=False)
-        embed.add_field(name="**!shuffle**", value="Mélange aléatoirement l'ordre des chansons dans la file d'attente.", inline=False)
-        embed.add_field(name="**!skip**", value="Passe à la musique suivante.", inline=False)
-        embed.add_field(name="**!reset**", value="Tente une réinitialisation du bot.", inline=False)
-        embed.add_field(name="**!pause**", value="Met la lecture en pause.", inline=False)
-        embed.add_field(name="**!resume**", value="Reprend la lecture mise en pause.", inline=False)
+        embed.add_field(name="**!play <search|url>**", value="Plays a song/playlist or adds it to the queue.", inline=False)
+        embed.add_field(name="**!queue [page]**", value="Displays the current queue.", inline=False)
+        embed.add_field(name="**!playing**", value="Shows the currently playing song.", inline=False)
+        embed.add_field(name="**!clear**", value="Clears the queue.", inline=False)
+        embed.add_field(name="**!shuffle**", value="Randomly shuffles the order of songs in the queue.", inline=False)
+        embed.add_field(name="**!skip**", value="Skips to the next song.", inline=False)
+        embed.add_field(name="**!stop**", value="Clears the queue and disconnects the bot.", inline=False)
+        embed.add_field(name="**!pause**", value="Pauses playback.", inline=False)
+        embed.add_field(name="**!resume**", value="Resumes paused playback.", inline=False)
 
         await ctx.send(embed=embed)
 

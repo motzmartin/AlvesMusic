@@ -8,7 +8,7 @@ load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 
 if not TOKEN:
-    raise ValueError("Le token Discord n'est pas défini dans le fichier \".env\".")
+    raise ValueError("The Discord token is not defined in the \".env\" file.")
 
 bot = AlvesMusic()
 
