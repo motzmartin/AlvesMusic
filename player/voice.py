@@ -4,7 +4,7 @@ from discord.ext import commands
 from millify import millify
 
 from alvesmusic import AlvesMusic
-from utils import extract_audio, timecode
+from utils import extract_audio, to_timecode
 
 FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
@@ -59,7 +59,7 @@ async def play_song(bot: AlvesMusic, ctx: commands.Context, song: dict, search_m
         if info.get("view_count"):
             embed.add_field(name="Views", value=millify(info["view_count"]))
         if info.get("duration"):
-            embed.add_field(name="Duration", value=timecode(info["duration"]))
+            embed.add_field(name="Duration", value=to_timecode(info["duration"]))
         if info.get("thumbnail"):
             embed.set_thumbnail(url=info["thumbnail"])
         embed.set_footer(text="Requested by {}".format(song["author"]), icon_url=song["avatar"])

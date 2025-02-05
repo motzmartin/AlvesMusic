@@ -3,7 +3,7 @@ from discord.ext import commands
 from millify import millify
 
 from alvesmusic import AlvesMusic
-from utils import extract, timecode
+from utils import extract, to_timecode
 from player import play_song
 
 class Play(commands.Cog):
@@ -107,7 +107,7 @@ class Play(commands.Cog):
                     if first.get("view_count"):
                         embed.add_field(name="Views", value=millify(first["view_count"]))
                     if first.get("duration"):
-                        embed.add_field(name="Duration", value=timecode(first["duration"]))
+                        embed.add_field(name="Duration", value=to_timecode(first["duration"]))
                     if first.get("id"):
                         embed.set_thumbnail(url="https://i.ytimg.com/vi_webp/{}/maxresdefault.webp".format(first["id"]))
                     embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
@@ -145,7 +145,7 @@ class Play(commands.Cog):
                     embed.add_field(name="Channel", value="[{}]({})".format(info["channel"], info["channel_url"]))
                 if info.get("view_count"):
                     embed.add_field(name="Views", value=millify(info["view_count"]))
-                embed.add_field(name="Total Duration", value=timecode(sum(entry["duration"] for entry in entries if entry.get("duration"))))
+                embed.add_field(name="Total Duration", value=to_timecode(sum(entry["duration"] for entry in entries if entry.get("duration"))))
                 if entries[0].get("id"):
                     embed.set_thumbnail(url="https://i.ytimg.com/vi_webp/{}/maxresdefault.webp".format(entries[0]["id"]))
                 embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
@@ -185,7 +185,7 @@ class Play(commands.Cog):
                 if info.get("view_count"):
                     embed.add_field(name="Views", value=millify(info["view_count"]))
                 if info.get("duration"):
-                    embed.add_field(name="Duration", value=timecode(info["duration"]))
+                    embed.add_field(name="Duration", value=to_timecode(info["duration"]))
                 if info.get("thumbnail"):
                     embed.set_thumbnail(url=info["thumbnail"])
                 embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)

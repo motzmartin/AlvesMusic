@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from millify import millify
 
-from utils import timecode
+from utils import to_timecode
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -26,7 +26,7 @@ class General(commands.Cog):
                     if song["title"] and song["url"]:
                         queue_list += "**{}.** [**{}**]({})".format(i + 1, song["title"], song["url"])
                     if song["duration"]:
-                        queue_list += " ({})".format(timecode(song["duration"]))
+                        queue_list += " ({})".format(to_timecode(song["duration"]))
                     queue_list += " *{}*\n".format(song["author"])
 
                 embed.title = "📜 Queue - Page {}/{} ({} track".format(page, max_page, len(queue))
@@ -34,7 +34,7 @@ class General(commands.Cog):
                     embed.title += "s"
                 embed.title += ")"
                 embed.description = queue_list
-                embed.add_field(name="Total Duration", value=timecode(sum(song["duration"] for song in queue if song["duration"])))
+                embed.add_field(name="Total Duration", value=to_timecode(sum(song["duration"] for song in queue if song["duration"])))
             else:
                 embed.title = "📭 Empty Queue"
                 embed.description = "No music in the queue."
@@ -64,7 +64,7 @@ class General(commands.Cog):
             if song["view_count"]:
                 embed.add_field(name="Views", value=millify(song["view_count"]))
             if song["duration"]:
-                embed.add_field(name="Duration", value=timecode(song["duration"]))
+                embed.add_field(name="Duration", value=to_timecode(song["duration"]))
             if song["thumbnail"]:
                 embed.set_thumbnail(url=song["thumbnail"])
             embed.set_footer(text="Requested by {}".format(song["author"]), icon_url=song["avatar"])
