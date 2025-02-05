@@ -11,18 +11,19 @@ FFMPEG_OPTIONS = {
     "options": "-vn"
 }
 
-async def play_song(bot: AlvesMusic, ctx: commands.Context, song: dict, search_message: discord.Message = None):
-    from . import next_song
+async def play_song(bot: AlvesMusic, song: dict, search_message: discord.Message = None):
+    from . import play_next
+
+    ctx: commands.Context = song["context"]
 
     data: dict = bot.data[ctx.guild.id]
+    data["player_state"] = 2
 
     embed = discord.Embed()
     embed.color = discord.Color.from_str("#73BCFF")
 
     try:
         # Extracting the audio URL
-
-        data["player_state"] = 2
 
         info = await bot.loop.run_in_executor(None, extract_audio, song["url"])
 
@@ -37,16 +38,20 @@ async def play_song(bot: AlvesMusic, ctx: commands.Context, song: dict, search_m
         if not voice:
             raise Exception("The bot has left the voice channel.")
 
-        voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(next_song(bot, ctx), bot.loop))
+        voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(play_next(bot, ctx), bot.loop))
 
         # Updating the currently playing song
 
-        song["channel"] = info.get("channel")
-        song["channel_url"] = info.get("channel_url")
-        song["view_count"] = info.get("view_count")
-        song["thumbnail"] = info.get("thumbnail")
-
-        data["playing"] = song
+        data["playing"] = {
+            "title": info.get("title"),
+            "url": info.get("webpage_url"),
+            "channel": info.get("channel"),
+            "channel_url": info.get("channel_url"),
+            "view_count": info.get("view_count"),
+            "duration": info.get("duration"),
+            "thumbnail": info.get("thumbnail"),
+            "context": ctx
+        }
         data["player_state"] = 1
 
         # Playback embed
@@ -62,7 +67,7 @@ async def play_song(bot: AlvesMusic, ctx: commands.Context, song: dict, search_m
             embed.add_field(name="Duration", value=to_timecode(info["duration"]))
         if info.get("thumbnail"):
             embed.set_thumbnail(url=info["thumbnail"])
-        embed.set_footer(text="Requested by {}".format(song["author"]), icon_url=song["avatar"])
+        embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
     except Exception as err:
         # Error while playing
 

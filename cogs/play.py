@@ -83,11 +83,10 @@ class Play(commands.Cog):
                 first: dict = info["entries"][0]
 
                 song = {
-                    "url": first.get("url"),
                     "title": first.get("title"),
+                    "url": first.get("url"),
                     "duration": first.get("duration"),
-                    "author": ctx.author.name,
-                    "avatar": ctx.author.avatar.url
+                    "context": ctx
                 }
 
                 if data["player_state"] != 0:
@@ -116,7 +115,7 @@ class Play(commands.Cog):
                 else:
                     # Playing the track
 
-                    await play_song(self.bot, ctx, song, search_message)
+                    await play_song(self.bot, song, search_message)
             else:
                 # Multiple results (from a YouTube playlist/mix)
                 # Example: !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
@@ -127,11 +126,10 @@ class Play(commands.Cog):
 
                 for entry in entries:
                     queue.append({
-                        "url": entry.get("url"),
                         "title": entry.get("title"),
+                        "url": entry.get("url"),
                         "duration": entry.get("duration"),
-                        "author": ctx.author.name,
-                        "avatar": ctx.author.avatar.url
+                        "context": ctx
                     })
 
                 # Sending the informational embed
@@ -155,17 +153,16 @@ class Play(commands.Cog):
                 # Play the first track if no song is currently playing
 
                 if data["player_state"] == 0:
-                    await play_song(self.bot, ctx, queue.pop(0))
+                    await play_song(self.bot, song)
         else:
             # A single result (from a YouTube URL)
             # Example: !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
 
             song = {
-                "url": info.get("webpage_url"),
                 "title": info.get("title"),
+                "url": info.get("webpage_url"),
                 "duration": info.get("duration"),
-                "author": ctx.author.name,
-                "avatar": ctx.author.avatar.url
+                "context": ctx
             }
 
             if data["player_state"] != 0:
@@ -194,7 +191,7 @@ class Play(commands.Cog):
             else:
                 # Playing the track
 
-                await play_song(self.bot, ctx, song, search_message)
+                await play_song(self.bot, song, search_message)
 
 async def setup(bot: AlvesMusic):
     await bot.add_cog(Play(bot))

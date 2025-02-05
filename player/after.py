@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from alvesmusic import AlvesMusic
 
-async def next_song(bot: AlvesMusic, ctx: commands.Context):
+async def play_next(bot: AlvesMusic, ctx: commands.Context):
     from . import play_song
 
     data: dict = bot.data[ctx.guild.id]
@@ -37,4 +37,4 @@ async def next_song(bot: AlvesMusic, ctx: commands.Context):
 
     # Play the next track
 
-    await play_song(bot, ctx, queue.pop(0))
+    await play_song(bot, queue.pop(0))

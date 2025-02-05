@@ -27,7 +27,8 @@ class General(commands.Cog):
                         queue_list += "**{}.** [**{}**]({})".format(i + 1, song["title"], song["url"])
                     if song["duration"]:
                         queue_list += " ({})".format(to_timecode(song["duration"]))
-                    queue_list += " *{}*\n".format(song["author"])
+                    context: commands.Context = song["context"]
+                    queue_list += " *{}*\n".format(context.author.name)
 
                 embed.title = "📜 Queue - Page {}/{} ({} track".format(page, max_page, len(queue))
                 if len(queue) > 1:
@@ -67,7 +68,8 @@ class General(commands.Cog):
                 embed.add_field(name="Duration", value=to_timecode(song["duration"]))
             if song["thumbnail"]:
                 embed.set_thumbnail(url=song["thumbnail"])
-            embed.set_footer(text="Requested by {}".format(song["author"]), icon_url=song["avatar"])
+            context: commands.Context = song["context"]
+            embed.set_footer(text="Requested by {}".format(context.author.name), icon_url=context.author.avatar.url)
         else:
             embed.title = "🔇 No Music Playing"
             embed.description = "There is no music currently playing."
