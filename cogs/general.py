@@ -54,10 +54,7 @@ class General(commands.Cog):
             song: dict = data["playing"]
             context: commands.Context = song["context"]
 
-            if voice.is_paused():
-                embed.title = "⏸️ Paused"
-            else:
-                embed.title = "🔊 Now Playing"
+            embed.title = "⏸️ Paused" if voice.is_paused() else "🔊 Now Playing"
             if song["title"] and song["url"]:
                 embed.description = "[**{}**]({})".format(song["title"], song["url"])
             if song["channel"] and song["channel_url"]:

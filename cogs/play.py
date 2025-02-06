@@ -110,13 +110,16 @@ class Play(commands.Cog):
 
                 # Adding the tracks
 
+                songs = []
                 for entry in entries:
-                    queue.append({
+                    songs.append({
                         "title": entry.get("title"),
                         "url": entry.get("url"),
                         "duration": entry.get("duration"),
                         "context": ctx
                     })
+
+                queue.extend(songs)
 
                 # Sending the informational embed
 
@@ -139,7 +142,8 @@ class Play(commands.Cog):
                 # Play the first track if no song is currently playing
 
                 if data["player_state"] == 0:
-                    await play_song(self.bot, song)
+                    queue.remove(songs[0])
+                    await play_song(self.bot, songs[0])
         else:
             # A single result (from a YouTube URL)
             # Example: !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
