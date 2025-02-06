@@ -37,6 +37,8 @@ class Events(commands.Cog):
             embed.description = "The provided argument is not valid."
         elif isinstance(error, commands.CommandNotFound):
             embed.description = "This command does not exist. Try **!help** to see the list of commands."
+        elif isinstance(error, commands.CheckFailure):
+            embed.description = str(error)
         else:
             embed.description = "An unknown error occurred."
             raise_error = True

@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from millify import millify
 
-from utils import to_timecode
+from utils import to_timecode, in_voice_channel
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -12,37 +12,36 @@ class General(commands.Cog):
 
     @commands.command()
     async def queue(self, ctx: commands.Context, page: int = 1):
+        embed = discord.Embed()
+        embed.color = discord.Color.from_str("#73BCFF")
+
         queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
-        max_page = 1 if not queue else (len(queue) + 19) // 20
+        if queue:
+            max_page = (len(queue) + 19) // 20
 
-        if page >= 1 and page <= max_page:
-            embed = discord.Embed()
-            embed.color = discord.Color.from_str("#73BCFF")
-
-            if queue:
+            if page >= 1 and page <= max_page:
                 queue_list = ""
+
                 for i in range((page - 1) * 20, min(page * 20, len(queue))):
                     song: dict = queue[i]
+                    context: commands.Context = song["context"]
+
                     if song["title"] and song["url"]:
                         queue_list += "**{}.** [**{}**]({})".format(i + 1, song["title"], song["url"])
                     if song["duration"]:
                         queue_list += " ({})".format(to_timecode(song["duration"]))
-                    context: commands.Context = song["context"]
                     queue_list += " *{}*\n".format(context.author.name)
 
-                embed.title = "📜 Queue - Page {}/{} ({} track".format(page, max_page, len(queue))
-                if len(queue) > 1:
-                    embed.title += "s"
-                embed.title += ")"
+                embed.title = "📜 Queue - Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else "")
                 embed.description = queue_list
                 embed.add_field(name="Total Duration", value=to_timecode(sum(song["duration"] for song in queue if song["duration"])))
             else:
-                embed.title = "📭 Empty Queue"
-                embed.description = "No music in the queue."
-
-            await ctx.send(embed=embed)
+                raise commands.BadArgument()
         else:
-            raise commands.BadArgument()
+            embed.title = "📭 Empty Queue"
+            embed.description = "No music in the queue."
+
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def playing(self, ctx: commands.Context):
@@ -53,6 +52,7 @@ class General(commands.Cog):
         data: dict = self.bot.data[ctx.guild.id]
         if voice and data["player_state"] == 1:
             song: dict = data["playing"]
+            context: commands.Context = song["context"]
 
             if voice.is_paused():
                 embed.title = "⏸️ Paused"
@@ -68,7 +68,6 @@ class General(commands.Cog):
                 embed.add_field(name="Duration", value=to_timecode(song["duration"]))
             if song["thumbnail"]:
                 embed.set_thumbnail(url=song["thumbnail"])
-            context: commands.Context = song["context"]
             embed.set_footer(text="Requested by {}".format(context.author.name), icon_url=context.author.avatar.url)
         else:
             embed.title = "🔇 No Music Playing"
@@ -77,121 +76,99 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
+    @in_voice_channel()
     async def clear(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        if ctx.author.voice:
-            queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
-            if queue:
-                queue.clear()
+        queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
+        if queue:
+            queue.clear()
 
-                embed.title = "🗑️ Queue Cleared"
-                embed.description = "All songs have been removed from the queue."
-            else:
-                embed.title = "📭 Queue Already Empty"
-                embed.description = "There are no songs in the queue."
+            embed.title = "🗑️ Queue Cleared"
+            embed.description = "All songs have been removed from the queue."
         else:
-            embed.title = "❌ Unable to Clear Queue"
-            embed.description = "You must be in a voice channel to use this command."
+            embed.title = "📭 Queue Already Empty"
+            embed.description = "There are no songs in the queue."
 
         await ctx.send(embed=embed)
 
     @commands.command()
+    @in_voice_channel()
     async def shuffle(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        if ctx.author.voice:
-            queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
-            if queue:
-                random.shuffle(queue)
+        queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
+        if queue:
+            random.shuffle(queue)
 
-                embed.title = "🔀 Queue Shuffled"
-                embed.description = "The order of the songs has been randomly shuffled!"
-            else:
-                embed.title = "❌ Unable to Shuffle"
-                embed.description = "The queue is empty, add some songs before using **!shuffle**."
+            embed.title = "🔀 Queue Shuffled"
+            embed.description = "The order of the songs has been randomly shuffled!"
         else:
             embed.title = "❌ Unable to Shuffle"
-            embed.description = "You must be in a voice channel to use this command."
+            embed.description = "The queue is empty, add some songs before using **!shuffle**."
 
         await ctx.send(embed=embed)
 
     @commands.command()
+    @in_voice_channel()
     async def skip(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        if ctx.author.voice:
-            voice: discord.VoiceClient = ctx.voice_client
-            data: dict = self.bot.data[ctx.guild.id]
-            if voice and data["player_state"] == 1:
-                voice.stop()
+        voice: discord.VoiceClient = ctx.voice_client
+        data: dict = self.bot.data[ctx.guild.id]
+        if voice and data["player_state"] == 1:
+            voice.stop()
 
-                embed.title = "⏭️ Skipping Song"
-                embed.description = "Playing the next song..."
-            else:
-                embed.title = "❌ Unable to Skip"
-                embed.description = "There is no music currently playing."
+            embed.title = "⏭️ Skipping Song"
+            embed.description = "Playing the next song..."
         else:
             embed.title = "❌ Unable to Skip"
-            embed.description = "You must be in a voice channel to use this command."
+            embed.description = "There is no music currently playing."
 
         await ctx.send(embed=embed)
 
     @commands.command()
+    @in_voice_channel()
     async def stop(self, ctx: commands.Context):
-        if ctx.author.voice:
-            await ctx.invoke(self.clear)
-            await ctx.invoke(self.skip)
-        else:
-            embed = discord.Embed()
-            embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Unable to Stop the Bot"
-            embed.description = "You must be in a voice channel to use this command."
-
-            await ctx.send(embed=embed)
+        await ctx.invoke(self.clear)
+        await ctx.invoke(self.skip)
 
     @commands.command()
+    @in_voice_channel()
     async def pause(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        if ctx.author.voice:
-            voice: discord.VoiceClient = ctx.voice_client
-            if voice and voice.is_playing():
-                voice.pause()
+        voice: discord.VoiceClient = ctx.voice_client
+        if voice and voice.is_playing():
+            voice.pause()
 
-                embed.title = "⏸️ Playback Paused"
-                embed.description = "Use **!resume** to resume playback."
-            else:
-                embed.title = "❌ Unable to Pause"
-                embed.description = "There is no music currently playing."
+            embed.title = "⏸️ Playback Paused"
+            embed.description = "Use **!resume** to resume playback."
         else:
             embed.title = "❌ Unable to Pause"
-            embed.description = "You must be in a voice channel to use this command."
+            embed.description = "There is no music currently playing."
 
         await ctx.send(embed=embed)
 
     @commands.command()
+    @in_voice_channel()
     async def resume(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        if ctx.author.voice:
-            voice: discord.VoiceClient = ctx.voice_client
-            if voice and voice.is_paused():
-                voice.resume()
+        voice: discord.VoiceClient = ctx.voice_client
+        if voice and voice.is_paused():
+            voice.resume()
 
-                embed.title = "▶️ Playback Resumed"
-                embed.description = "The music resumes from where it was paused."
-            else:
-                embed.title = "❌ Unable to Resume"
-                embed.description = "No music is currently paused."
+            embed.title = "▶️ Playback Resumed"
+            embed.description = "The music resumes from where it was paused."
         else:
             embed.title = "❌ Unable to Resume"
-            embed.description = "You must be in a voice channel to use this command."
+            embed.description = "No music is currently paused."
 
         await ctx.send(embed=embed)
 

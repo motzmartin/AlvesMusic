@@ -3,7 +3,7 @@ from discord.ext import commands
 from millify import millify
 
 from alvesmusic import AlvesMusic
-from utils import extract, to_timecode
+from utils import extract, to_timecode, in_voice_channel
 from player import play_song
 
 class Play(commands.Cog):
@@ -11,25 +11,13 @@ class Play(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @in_voice_channel()
     async def play(self, ctx: commands.Context, *, query: str):
-        # Check if the user is in a voice channel
-
-        if not ctx.author.voice:
-            embed = discord.Embed()
-            embed.color = discord.Color.from_str("#73BCFF")
-            embed.title = "❌ Unable to play music"
-            embed.description = "You must be in a voice channel to use this command."
-
-            return await ctx.send(embed=embed)
-
         # Connect or move to the correct voice channel if necessary
 
         voice: discord.VoiceClient = ctx.voice_client
-        author_channel = ctx.author.voice.channel
-        if voice:
-            if voice.channel != author_channel:
-                await voice.move_to(author_channel)
-        else:
+        if not voice:
+            author_channel: discord.VoiceChannel = ctx.author.voice.channel
             await author_channel.connect()
 
         # Sending the search embed
