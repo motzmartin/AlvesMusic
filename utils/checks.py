@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-def in_voice_channel():
+def voice_check():
     async def predicate(ctx: commands.Context):
         if not ctx.author.voice or not ctx.author.voice.channel:
             raise commands.CheckFailure("You must be in a voice channel to use this command.")

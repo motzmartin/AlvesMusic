@@ -3,7 +3,7 @@ from discord.ext import commands
 from millify import millify
 
 from alvesmusic import AlvesMusic
-from utils import extract, to_timecode, in_voice_channel
+from utils import extract, to_timecode, voice_check, get_data
 from player import play_song
 
 class Play(commands.Cog):
@@ -11,14 +11,12 @@ class Play(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @in_voice_channel()
+    @voice_check()
     async def play(self, ctx: commands.Context, *, query: str):
-        # Connect or move to the correct voice channel if necessary
+        # Connect to the voice channel if necessary
 
-        voice: discord.VoiceClient = ctx.voice_client
-        if not voice:
-            author_channel: discord.VoiceChannel = ctx.author.voice.channel
-            await author_channel.connect()
+        if not ctx.voice_client:
+            await ctx.author.voice.channel.connect()
 
         # Sending the search embed
 
@@ -31,7 +29,7 @@ class Play(commands.Cog):
 
         # Searching for the track(s)
 
-        data: dict = self.bot.data[ctx.guild.id]
+        data: dict = get_data(self.bot, ctx.guild.id)
 
         try:
             info = await self.bot.loop.run_in_executor(None, extract, query)

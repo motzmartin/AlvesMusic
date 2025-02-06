@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 from millify import millify
 
-from utils import to_timecode, in_voice_channel
+from utils import to_timecode, voice_check, get_data
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -15,7 +15,7 @@ class General(commands.Cog):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
+        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
         if queue:
             max_page = (len(queue) + 19) // 20
 
@@ -49,7 +49,7 @@ class General(commands.Cog):
         embed.color = discord.Color.from_str("#73BCFF")
 
         voice: discord.VoiceClient = ctx.voice_client
-        data: dict = self.bot.data[ctx.guild.id]
+        data: dict = get_data(self.bot, ctx.guild.id)
         if voice and data["player_state"] == 1:
             song: dict = data["playing"]
             context: commands.Context = song["context"]
@@ -76,12 +76,12 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    @in_voice_channel()
+    @voice_check()
     async def clear(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
+        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
         if queue:
             queue.clear()
 
@@ -94,12 +94,12 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    @in_voice_channel()
+    @voice_check()
     async def shuffle(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
-        queue: list[dict] = self.bot.data[ctx.guild.id]["queue"]
+        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
         if queue:
             random.shuffle(queue)
 
@@ -112,13 +112,13 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    @in_voice_channel()
+    @voice_check()
     async def skip(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
 
         voice: discord.VoiceClient = ctx.voice_client
-        data: dict = self.bot.data[ctx.guild.id]
+        data: dict = get_data(self.bot, ctx.guild.id)
         if voice and data["player_state"] == 1:
             voice.stop()
 
@@ -131,13 +131,13 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    @in_voice_channel()
+    @voice_check()
     async def stop(self, ctx: commands.Context):
         await ctx.invoke(self.clear)
         await ctx.invoke(self.skip)
 
     @commands.command()
-    @in_voice_channel()
+    @voice_check()
     async def pause(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")
@@ -155,7 +155,7 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    @in_voice_channel()
+    @voice_check()
     async def resume(self, ctx: commands.Context):
         embed = discord.Embed()
         embed.color = discord.Color.from_str("#73BCFF")

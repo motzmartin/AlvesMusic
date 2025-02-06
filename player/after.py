@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
 
+from utils import get_data
 from alvesmusic import AlvesMusic
 
 async def play_next(bot: AlvesMusic, ctx: commands.Context):
     from . import play_song
 
-    data: dict = bot.data[ctx.guild.id]
+    data: dict = get_data(bot, ctx.guild.id)
 
     # Check if the bot is still connected to the voice channel
 

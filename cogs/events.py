@@ -11,13 +11,6 @@ class Events(commands.Cog):
     async def on_ready(self):
         await self.bot.wait_until_ready()
 
-        for guild in self.bot.guilds:
-            self.bot.data[guild.id] = {
-                "queue": [],
-                "player_state": 0,
-                "playing": {}
-            }
-
         activity = discord.Game(name="!help")
         await self.bot.change_presence(activity=activity)
 
