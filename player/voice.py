@@ -44,11 +44,12 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
         # Connect or move to the author's voice channel if necessary
 
         voice: discord.VoiceClient = ctx.voice_client
-        author_channel: discord.VoiceChannel = ctx.author.voice.channel
+        author_voice: discord.VoiceClient = ctx.author.voice
         if not voice:
-            voice = await author_channel.connect()
-        elif voice.channel != author_channel:
-            await voice.move_to(author_channel)
+            voice = await author_voice.channel.connect()
+        elif author_voice:
+            if voice.channel != author_voice.channel:
+                await voice.move_to(author_voice.channel)
 
         # Playing the track
 
