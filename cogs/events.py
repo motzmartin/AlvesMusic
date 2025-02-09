@@ -33,7 +33,7 @@ class Events(commands.Cog):
         elif isinstance(error, commands.CheckFailure):
             embed.description = str(error)
         else:
-            embed.description = "An unknown error occurred."
+            embed.description = str(error)
             raise_error = True
 
         await ctx.send(embed=embed)

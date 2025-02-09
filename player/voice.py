@@ -26,17 +26,21 @@ async def play_song(bot: AlvesMusic, song: dict, search_message: discord.Message
         # Extracting the audio URL
 
         info = await bot.loop.run_in_executor(None, extract_audio, song["url"])
-
         if not info.get("url"):
             raise Exception("Unable to extract the audio URL.")
 
-        # Playing the track
-
         source = discord.FFmpegOpusAudio(info["url"], **FFMPEG_OPTIONS)
 
+        # Connect or move to the author's voice channel if necessary
+
         voice: discord.VoiceClient = ctx.voice_client
+        author_channel: discord.VoiceChannel = ctx.author.voice.channel
         if not voice:
-            raise Exception("The bot has left the voice channel.")
+            voice = await author_channel.connect()
+        elif voice.channel != author_channel:
+            await voice.move_to(author_channel)
+
+        # Playing the track
 
         voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(play_next(bot, ctx), bot.loop))
 
@@ -80,7 +84,7 @@ async def play_song(bot: AlvesMusic, song: dict, search_message: discord.Message
         # Playback error embed
 
         embed.title = "❌ Error while playing audio"
-        embed.description = "`{}`".format(err)
+        embed.description = str(err)
 
     # Sending the informative embed
 

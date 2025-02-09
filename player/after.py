@@ -27,6 +27,7 @@ async def play_next(bot: AlvesMusic, ctx: commands.Context):
     queue: list[dict] = data["queue"]
     if not queue:
         data["player_state"] = 0
+
         await ctx.voice_client.disconnect()
 
         embed = discord.Embed()

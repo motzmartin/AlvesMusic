@@ -13,11 +13,6 @@ class Play(commands.Cog):
     @commands.command()
     @voice_check()
     async def play(self, ctx: commands.Context, *, query: str):
-        # Connect to the voice channel if necessary
-
-        if not ctx.voice_client:
-            await ctx.author.voice.channel.connect()
-
         # Sending the search embed
 
         embed = discord.Embed()
@@ -43,7 +38,7 @@ class Play(commands.Cog):
             embed = discord.Embed()
             embed.color = discord.Color.from_str("#73BCFF")
             embed.title = "❌ Error during search"
-            embed.description = "`{}`".format(err)
+            embed.description = str(err)
 
             return await search_message.edit(embed=embed)
 
