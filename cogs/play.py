@@ -88,8 +88,8 @@ class Play(commands.Cog):
                         embed.add_field(name="Views", value=millify(first["view_count"]))
                     if first.get("duration"):
                         embed.add_field(name="Duration", value=to_timecode(first["duration"]))
-                    if first.get("id"):
-                        embed.set_thumbnail(url="https://i.ytimg.com/vi_webp/{}/maxresdefault.webp".format(first["id"]))
+                    if first.get("thumbnails"):
+                        embed.set_thumbnail(url=first["thumbnails"][0]["url"])
                     embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                     await search_message.edit(embed=embed)
@@ -128,8 +128,8 @@ class Play(commands.Cog):
                 if info.get("view_count"):
                     embed.add_field(name="Views", value=millify(info["view_count"]))
                 embed.add_field(name="Total Duration", value=to_timecode(sum(entry["duration"] for entry in entries if entry.get("duration"))))
-                if entries[0].get("id"):
-                    embed.set_thumbnail(url="https://i.ytimg.com/vi_webp/{}/maxresdefault.webp".format(entries[0]["id"]))
+                if entries[0].get("thumbnails"):
+                    embed.set_thumbnail(url=entries[0]["thumbnails"][0]["url"])
                 embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
                 await search_message.edit(embed=embed)

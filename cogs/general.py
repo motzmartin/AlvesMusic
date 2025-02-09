@@ -111,21 +111,17 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def skip(self, ctx: commands.Context):
-        embed = discord.Embed()
-        embed.color = discord.Color.from_str("#73BCFF")
-
         voice: discord.VoiceClient = ctx.voice_client
         data: dict = get_data(self.bot, ctx.guild.id)
         if voice and data["player_state"] == 1:
             voice.stop()
-
-            embed.title = "⏭️ Skipping Song"
-            embed.description = "Playing the next song..."
         else:
+            embed = discord.Embed()
+            embed.color = discord.Color.from_str("#73BCFF")
             embed.title = "❌ Unable to Skip"
             embed.description = "There is no music currently playing."
 
-        await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
 
     @commands.command()
     @voice_check()

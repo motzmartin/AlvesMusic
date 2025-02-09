@@ -11,7 +11,7 @@ FFMPEG_OPTIONS = {
     "options": "-vn"
 }
 
-async def play_song(bot: AlvesMusic, song: dict, search_message: discord.Message = None):
+async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None):
     from . import play_next
 
     ctx: commands.Context = song["context"]
@@ -19,8 +19,18 @@ async def play_song(bot: AlvesMusic, song: dict, search_message: discord.Message
     data: dict = get_data(bot, ctx.guild.id)
     data["player_state"] = 2
 
+    # Loading embed
+
     embed = discord.Embed()
     embed.color = discord.Color.from_str("#73BCFF")
+    embed.title = "⏳ Loading..."
+    embed.description = "Loading [**{}**]({})".format(song["title"], song["url"])
+    embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
+
+    if message:
+        await message.edit(embed=embed)
+    else:
+        message = await ctx.send(embed=embed)
 
     try:
         # Extracting the audio URL
@@ -60,6 +70,8 @@ async def play_song(bot: AlvesMusic, song: dict, search_message: discord.Message
 
         # Playback embed
 
+        embed = discord.Embed()
+        embed.color = discord.Color.from_str("#73BCFF")
         embed.title = "🎶 Now Playing"
         if info.get("title") and info.get("webpage_url"):
             embed.description = "Now playing [**{}**]({})".format(info["title"], info["webpage_url"])
@@ -83,12 +95,14 @@ async def play_song(bot: AlvesMusic, song: dict, search_message: discord.Message
 
         # Playback error embed
 
+        embed = discord.Embed()
+        embed.color = discord.Color.from_str("#73BCFF")
         embed.title = "❌ Error while playing audio"
         embed.description = str(err)
 
     # Sending the informative embed
 
-    if search_message:
-        await search_message.edit(embed=embed)
+    if message:
+        await message.edit(embed=embed)
     else:
         await ctx.send(embed=embed)
