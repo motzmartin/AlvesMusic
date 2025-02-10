@@ -42,10 +42,9 @@ class General(commands.Cog):
 
     @commands.command()
     async def playing(self, ctx: commands.Context):
-        voice: discord.VoiceClient = ctx.voice_client
         data: dict = get_data(self.bot, ctx.guild.id)
-        if voice and data["player_state"] == 1:
-            embed = get_embed(data["playing"], 3, paused=voice.is_paused())
+        if data["player_state"] == 1:
+            embed = get_embed(data["playing"], 3)
         else:
             embed = get_base_embed("🔇 No Music Playing")
             embed.description = "There is no music currently playing."

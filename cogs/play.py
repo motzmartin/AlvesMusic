@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 from alvesmusic import AlvesMusic
-from utils import extract, voice_check, get_data, get_embed, get_base_embed
+from utils import extract, voice_check, get_data, get_embed, get_base_embed, get_thumbnail_url
 from player import play_song
 
 class Play(commands.Cog):
@@ -55,7 +55,7 @@ class Play(commands.Cog):
                         song["channel"] = first.get("channel")
                         song["channel_url"] = first.get("channel_url")
                         song["view_count"] = first.get("view_count")
-                        song["thumbnail"] = "https://i.ytimg.com/vi/{}/mqdefault.jpg".format(first["id"]) if first.get("id") else None
+                        song["thumbnail"] = get_thumbnail_url(first.get("id"))
 
                         embed = get_embed(song, 0)
                         await message.edit(embed=embed)
@@ -71,31 +71,38 @@ class Play(commands.Cog):
                     entries: list[dict] = info["entries"]
 
                     songs = []
+                    total_duration = 0
                     for entry in entries:
                         if not entry.get("title") or not entry.get("url"):
                             raise Exception("Unable to extract the video title or URL.")
 
-                        songs.append({
+                        song = {
                             "title": entry["title"],
                             "url": entry["url"],
                             "duration": entry.get("duration"),
                             "context": ctx
-                        })
+                        }
+
+                        if song["duration"]:
+                            total_duration += song["duration"]
+
+                        songs.append(song)
 
                     queue.extend(songs)
 
                     playlist = {
                         "title": info["title"],
                         "url": info["webpage_url"],
+                        "count": len(entries),
                         "channel": info.get("channel"),
                         "channel_url": info.get("channel_url"),
                         "view_count": info.get("view_count"),
-                        "duration": sum(entry["duration"] for entry in entries if entry.get("duration")),
-                        "thumbnail": "https://i.ytimg.com/vi/{}/mqdefault.jpg".format(entries[0]["id"]) if entries[0].get("id") else None,
+                        "duration": total_duration,
+                        "thumbnail": get_thumbnail_url(entries[0].get("id")),
                         "context": ctx
                     }
 
-                    embed = get_embed(playlist, 1, entries_length=len(entries))
+                    embed = get_embed(playlist, 1)
                     await message.edit(embed=embed)
 
                     if data["player_state"] == 0:

@@ -15,7 +15,7 @@ def get_base_embed(title: str = None) -> discord.Embed:
 
     return embed
 
-def get_embed(song: dict, message_type: int, entries_length: int = 1, paused: bool = False) -> discord.Embed:
+def get_embed(media: dict, message_type: int) -> discord.Embed:
     """
     message_type (int):
         0 - added
@@ -24,37 +24,39 @@ def get_embed(song: dict, message_type: int, entries_length: int = 1, paused: bo
         3 - now playing
     """
 
+    context: commands.Context = media["context"]
+
     if message_type == 0 or message_type == 1:
         embed = get_base_embed("📌 Added to queue")
     elif message_type == 2:
         embed = get_base_embed("🎶 Now Playing")
     elif message_type == 3:
-        embed = get_base_embed("⏸️ Paused" if paused else "🔊 Now Playing")
+        voice: discord.VoiceClient = context.voice_client
+        embed = get_base_embed("⏸️ Paused" if voice and voice.is_paused() else "🔊 Now Playing")
 
-    link = "[**{}**]({})".format(song["title"], song["url"])
+    link = "[**{}**]({})".format(media["title"], media["url"])
 
     if message_type == 0:
         embed.description = "The song {} has been added to the queue.".format(link)
     elif message_type == 1:
-        embed.description = "The **{}** tracks from the playlist {} have been added to the queue.".format(entries_length, link)
+        embed.description = "The **{}** tracks from the playlist {} have been added to the queue.".format(media["count"], link)
     elif message_type == 2:
         embed.description = "Now playing {}".format(link)
     elif message_type == 3:
         embed.description = link
 
-    if song["channel"] and song["channel_url"]:
-        embed.add_field(name="Channel", value="[{}]({})".format(song["channel"], song["channel_url"]))
+    if media["channel"] and media["channel_url"]:
+        embed.add_field(name="Channel", value="[{}]({})".format(media["channel"], media["channel_url"]))
 
-    if song["view_count"]:
-        embed.add_field(name="Views", value=millify(song["view_count"]))
+    if media["view_count"]:
+        embed.add_field(name="Views", value=millify(media["view_count"]))
 
-    if song["duration"]:
-        embed.add_field(name="Total Duration" if message_type == 1 else "Duration", value=to_timecode(song["duration"]))
+    if media["duration"]:
+        embed.add_field(name="Total Duration" if message_type == 1 else "Duration", value=to_timecode(media["duration"]))
 
-    if song["thumbnail"]:
-        embed.set_thumbnail(url=song["thumbnail"])
+    if media["thumbnail"]:
+        embed.set_thumbnail(url=media["thumbnail"])
 
-    context: commands.Context = song["context"]
     if context.author:
         embed.set_footer(text="Requested by {}".format(context.author.name), icon_url=context.author.avatar.url)
 
