@@ -1,17 +1,16 @@
 import asyncio
 import discord
 from discord.ext import commands
-from millify import millify
 
 from alvesmusic import AlvesMusic
-from utils import extract_audio, to_timecode, get_data
+from utils import extract_audio, to_timecode, get_data, get_embed, get_base_embed
 
 FFMPEG_OPTIONS = {
     "before_options": "-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5",
     "options": "-vn"
 }
 
-async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None):
+async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None) -> None:
     from . import play_next
 
     ctx: commands.Context = song["context"]
@@ -21,16 +20,12 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
     # Loading embed
 
-    embed = discord.Embed()
-    embed.color = discord.Color.from_str("#73BCFF")
-    embed.title = "⏳ Loading..."
-    embed.description = "Loading"
-    if song["title"] and song["url"]:
-        embed.description += " [**{}**]({})".format(song["title"], song["url"])
-        if song["duration"]:
-            embed.description += " ({})".format(to_timecode(song["duration"]))
-    embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
-
+    embed = get_base_embed("⏳ Loading...")
+    embed.description = "Loading [**{}**]({})".format(song["title"], song["url"])
+    if song["duration"]:
+        embed.description += " ({})".format(to_timecode(song["duration"]))
+    if ctx.author:
+        embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
     if message:
         await message.edit(embed=embed)
     else:
@@ -40,20 +35,25 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
         # Extracting the audio URL
 
         info = await bot.loop.run_in_executor(None, extract_audio, song["url"])
-        if not info.get("url"):
-            raise Exception("Unable to extract the audio URL.")
+
+        if not info.get("url") or not info.get("title") or not info.get("webpage_url"):
+            raise Exception("Unable to extract audio data.")
 
         source = discord.FFmpegOpusAudio(info["url"], **FFMPEG_OPTIONS)
 
         # Connect or move to the author's voice channel if necessary
 
-        voice: discord.VoiceClient = ctx.voice_client
         author_voice: discord.VoiceClient = ctx.author.voice
-        if not voice:
-            voice = await author_voice.channel.connect()
-        elif author_voice:
-            if voice.channel != author_voice.channel:
-                await voice.move_to(author_voice.channel)
+        if author_voice:
+            author_channel = author_voice.channel
+            voice: discord.VoiceClient = ctx.voice_client
+            if not voice:
+                voice = await author_channel.connect(self_deaf=True)
+            elif voice.channel != author_channel:
+                await voice.move_to(author_channel)
+                await voice.guild.change_voice_state(channel=author_channel, self_deaf=True)
+        else:
+            raise Exception("The user is no longer connected to the voice channel.")
 
         # Playing the track
 
@@ -61,9 +61,9 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         # Updating the currently playing song
 
-        data["playing"] = {
-            "title": info.get("title"),
-            "url": info.get("webpage_url"),
+        new_song = {
+            "title": info["title"],
+            "url": info["webpage_url"],
             "channel": info.get("channel"),
             "channel_url": info.get("channel_url"),
             "view_count": info.get("view_count"),
@@ -71,24 +71,17 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
             "thumbnail": info.get("thumbnail"),
             "context": ctx
         }
+
+        data["playing"] = new_song
         data["player_state"] = 1
 
         # Playback embed
 
-        embed = discord.Embed()
-        embed.color = discord.Color.from_str("#73BCFF")
-        embed.title = "🎶 Now Playing"
-        if info.get("title") and info.get("webpage_url"):
-            embed.description = "Now playing [**{}**]({})".format(info["title"], info["webpage_url"])
-        if info.get("channel") and info.get("channel_url"):
-            embed.add_field(name="Channel", value="[{}]({})".format(info["channel"], info["channel_url"]))
-        if info.get("view_count"):
-            embed.add_field(name="Views", value=millify(info["view_count"]))
-        if info.get("duration"):
-            embed.add_field(name="Duration", value=to_timecode(info["duration"]))
-        if info.get("thumbnail"):
-            embed.set_thumbnail(url=info["thumbnail"])
-        embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
+        embed = get_embed(new_song, 2)
+        if message:
+            await message.edit(embed=embed)
+        else:
+            await ctx.send(embed=embed)
     except Exception as err:
         # Error while playing
 
@@ -100,14 +93,9 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         # Playback error embed
 
-        embed = discord.Embed()
-        embed.color = discord.Color.from_str("#73BCFF")
-        embed.title = "❌ Error while playing audio"
+        embed = get_base_embed("❌ Error while playing audio")
         embed.description = str(err)
-
-    # Sending the informative embed
-
-    if message:
-        await message.edit(embed=embed)
-    else:
-        await ctx.send(embed=embed)
+        if message:
+            await message.edit(embed=embed)
+        else:
+            await ctx.send(embed=embed)

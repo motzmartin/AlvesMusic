@@ -1,6 +1,6 @@
-import discord
 from discord.ext import commands
 
+from utils import get_base_embed
 from alvesmusic import AlvesMusic
 
 class Help(commands.Cog):
@@ -9,9 +9,7 @@ class Help(commands.Cog):
 
     @commands.command(name="help")
     async def help_command(self, ctx: commands.Context):
-        embed = discord.Embed()
-        embed.title = "💡 Available Commands"
-        embed.color = discord.Color.from_str("#73BCFF")
+        embed = get_base_embed("💡 Available Commands")
 
         embed.add_field(name="**!play <search|url>**", value="Plays a song/playlist or adds it to the queue.", inline=False)
         embed.add_field(name="**!queue [page]**", value="Displays the current queue.", inline=False)

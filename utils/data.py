@@ -1,6 +1,6 @@
 from alvesmusic import AlvesMusic
 
-def get_data(bot: AlvesMusic, guild_id: int):
+def get_data(bot: AlvesMusic, guild_id: int) -> dict:
     if not guild_id in bot.data:
         bot.data[guild_id] = {
             "queue": [],

@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
 
-from utils import get_data
+from utils import get_data, get_base_embed
 from alvesmusic import AlvesMusic
 
-async def play_next(bot: AlvesMusic, ctx: commands.Context):
+async def play_next(bot: AlvesMusic, ctx: commands.Context) -> None:
     from . import play_song
 
     data: dict = get_data(bot, ctx.guild.id)
@@ -15,12 +15,11 @@ async def play_next(bot: AlvesMusic, ctx: commands.Context):
     if not voice:
         data["player_state"] = 0
 
-        embed = discord.Embed()
-        embed.color = discord.Color.from_str("#73BCFF")
-        embed.title = "🚫 Playback Ended"
+        embed = get_base_embed("🚫 Playback Ended")
         embed.description = "The bot has left the voice channel."
 
-        return await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
+        return
 
     # Check if the queue is empty
 
@@ -28,14 +27,13 @@ async def play_next(bot: AlvesMusic, ctx: commands.Context):
     if not queue:
         data["player_state"] = 0
 
-        await ctx.voice_client.disconnect()
+        await voice.disconnect()
 
-        embed = discord.Embed()
-        embed.color = discord.Color.from_str("#73BCFF")
-        embed.title = "🚫 Playback Ended"
+        embed = get_base_embed("🚫 Playback Ended")
         embed.description = "The queue is empty. Disconnecting from the voice channel."
 
-        return await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
+        return
 
     # Play the next track
 

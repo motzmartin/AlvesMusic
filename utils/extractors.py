@@ -1,6 +1,6 @@
 from yt_dlp import YoutubeDL
 
-def extract_audio(url: str):
+def extract_audio(url: str) -> dict:
     ydl_options = {
         "format": "bestaudio[ext=opus]/bestaudio/best",
         "cookiefile": "cookies.txt",
@@ -10,7 +10,7 @@ def extract_audio(url: str):
     with YoutubeDL(ydl_options) as ydl:
         return ydl.extract_info(url, download=False)
 
-def extract(query: str):
+def extract(query: str) -> dict:
     ydl_options = {
         "extract_flat": "in_playlist",
         "default_search": "auto",

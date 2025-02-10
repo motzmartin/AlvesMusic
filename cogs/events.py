@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+from utils import get_base_embed
 from alvesmusic import AlvesMusic
 
 class Events(commands.Cog):
@@ -18,9 +19,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        embed = discord.Embed()
-        embed.color = discord.Color.from_str("#73BCFF")
-        embed.title = "❌ An error occurred"
+        embed = get_base_embed("❌ An error occurred")
 
         raise_error = False
 
@@ -33,7 +32,7 @@ class Events(commands.Cog):
         elif isinstance(error, commands.CheckFailure):
             embed.description = str(error)
         else:
-            embed.description = str(error)
+            embed.description = "Contact the administrator for help."
             raise_error = True
 
         await ctx.send(embed=embed)
