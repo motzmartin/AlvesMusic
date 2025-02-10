@@ -24,7 +24,11 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
     embed = discord.Embed()
     embed.color = discord.Color.from_str("#73BCFF")
     embed.title = "⏳ Loading..."
-    embed.description = "Loading [**{}**]({}) ({})".format(song["title"], song["url"], to_timecode(song["duration"]))
+    embed.description = "Loading"
+    if song["title"] and song["url"]:
+        embed.description += " [**{}**]({})".format(song["title"], song["url"])
+        if song["duration"]:
+            embed.description += " ({})".format(to_timecode(song["duration"]))
     embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
 
     if message:
