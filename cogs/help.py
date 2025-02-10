@@ -21,6 +21,8 @@ class Help(commands.Cog):
         embed.add_field(name="**!pause**", value="Pauses playback.", inline=False)
         embed.add_field(name="**!resume**", value="Resumes paused playback.", inline=False)
 
+        embed.set_footer(text="🔗 Source code available on GitHub: https://github.com/motzmartin/AlvesMusic")
+
         await ctx.send(embed=embed)
 
 async def setup(bot: AlvesMusic):
