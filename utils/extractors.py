@@ -21,8 +21,8 @@ def extract(query: str) -> dict:
     with YoutubeDL(ydl_options) as ydl:
         return ydl.extract_info(query, download=False)
 
-def get_thumbnail_url(id: str) -> str | None:
-    if id:
-        return "https://i.ytimg.com/vi/{}/mqdefault.jpg".format(id)
+def get_thumbnail_url(video_id: str) -> str | None:
+    if video_id:
+        return "https://i.ytimg.com/vi/{}/mqdefault.jpg".format(video_id)
     else:
         return None

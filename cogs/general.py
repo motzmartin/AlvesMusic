@@ -17,21 +17,23 @@ class General(commands.Cog):
 
             if page >= 1 and page <= max_page:
                 queue_list = ""
-
+                total_duration = 0
                 for i in range((page - 1) * 20, min(page * 20, len(queue))):
                     song: dict = queue[i]
 
                     queue_list += "**{}.** [**{}**]({})".format(i + 1, song["title"], song["url"])
                     if song["duration"]:
                         queue_list += " ({})".format(to_timecode(song["duration"]))
+                        total_duration += song["duration"]
                     context: commands.Context = song["context"]
                     if context.author:
-                        queue_list += " *{}*\n".format(context.author.name)
+                        queue_list += " - *{}*\n".format(context.author.name)
 
                 embed = get_base_embed("📜 Queue - Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else ""))
                 embed.description = queue_list
 
-                embed.add_field(name="Total Duration", value=to_timecode(sum(song["duration"] for song in queue if song["duration"])))
+                if total_duration:
+                    embed.add_field(name="Total Duration", value=to_timecode(total_duration))
             else:
                 raise commands.BadArgument()
         else:
@@ -48,6 +50,29 @@ class General(commands.Cog):
         else:
             embed = get_base_embed("🔇 No Music Playing")
             embed.description = "There is no music currently playing."
+
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @voice_check()
+    async def remove(self, ctx: commands.Context, index: int = 0):
+        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
+        if queue:
+            if index >= 1 and index <= len(queue):
+                removed = queue.pop(index - 1)
+
+                embed = get_base_embed("🗑️ Song removed")
+                embed.description = "The song [**{}**]({})".format(removed["title"], removed["url"])
+                if removed["duration"]:
+                    embed.description += " ({})".format(to_timecode(removed["duration"]))
+                embed.description += " has been removed from the queue."
+
+                embed.set_footer(text="Requested by {}".format(ctx.author.name), icon_url=ctx.author.avatar.url)
+            else:
+                raise commands.BadArgument()
+        else:
+            embed = get_base_embed("❌ Unable to Remove")
+            embed.description = "The queue is empty, add some songs before using **!remove**."
 
         await ctx.send(embed=embed)
 
