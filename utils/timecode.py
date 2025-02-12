@@ -1,4 +1,9 @@
 def to_timecode(seconds: int | float) -> str:
+    """
+    Converts a duration in seconds into a formatted timecode.
+
+    -> DD:HH:MM:SS or HH:MM:SS if shorter
+    """
     if not isinstance(seconds, int):
         seconds = int(seconds)
 

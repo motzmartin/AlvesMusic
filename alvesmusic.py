@@ -11,6 +11,9 @@ class AlvesMusic(commands.Bot):
         self.help_command = None
 
     async def setup_hook(self):
+        """
+        Asynchronously loads bot extensions (cogs) during startup.
+        """
         await self.load_extension("cogs.events")
         await self.load_extension("cogs.general")
         await self.load_extension("cogs.play")

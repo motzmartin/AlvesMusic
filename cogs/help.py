@@ -9,6 +9,9 @@ class Help(commands.Cog):
 
     @commands.command(name="help")
     async def help_command(self, ctx: commands.Context):
+        """
+        Send the help menu (embed).
+        """
         embed = get_base_embed("💡 Available Commands")
 
         embed.add_field(name="**!play <search|url>**", value="Plays a song/playlist or adds it to the queue.", inline=False)
@@ -29,4 +32,7 @@ class Help(commands.Cog):
         await ctx.send(embed=embed)
 
 async def setup(bot: AlvesMusic):
+    """
+    Load the cog into the bot.
+    """
     await bot.add_cog(Help(bot))

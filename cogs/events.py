@@ -10,6 +10,9 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        """
+        Triggered when the bot successfully connects to Discord and is ready.
+        """
         await self.bot.wait_until_ready()
 
         activity = discord.Game(name="!help")
@@ -19,6 +22,9 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
+        """
+        Handle errors triggered by command execution.
+        """
         embed = get_base_embed("❌ An error occurred")
 
         raise_error = False
@@ -41,4 +47,7 @@ class Events(commands.Cog):
             raise error
 
 async def setup(bot: AlvesMusic):
+    """
+    Load the cog into the bot.
+    """
     await bot.add_cog(Events(bot))

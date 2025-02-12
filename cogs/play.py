@@ -11,6 +11,9 @@ class Play(commands.Cog):
     @commands.command()
     @voice_check()
     async def play(self, ctx: commands.Context, *, query: str):
+        """
+        Plays a song/playlist or adds it to the queue.
+        """
         # Sending the search embed
 
         embed = get_base_embed("🔍 Searching")
@@ -143,4 +146,7 @@ class Play(commands.Cog):
             await message.edit(embed=embed)
 
 async def setup(bot: AlvesMusic):
+    """
+    Load the cog into the bot.
+    """
     await bot.add_cog(Play(bot))

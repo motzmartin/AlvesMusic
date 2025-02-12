@@ -10,7 +10,10 @@ FFMPEG_OPTIONS = {
     "options": "-vn"
 }
 
-async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None) -> None:
+async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None):
+    """
+    Extracts audio information from a URL and plays the audio in the voice channel.
+    """
     from . import play_next
 
     ctx: commands.Context = song["context"]

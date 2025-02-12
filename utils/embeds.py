@@ -7,6 +7,9 @@ from . import to_timecode
 COLOR = "#73BCFF"
 
 def get_base_embed(title: str = None) -> discord.Embed:
+    """
+    Creates a base embed with a default color and an optional title.
+    """
     embed = discord.Embed()
     embed.color = discord.Color.from_str(COLOR)
 
@@ -17,6 +20,8 @@ def get_base_embed(title: str = None) -> discord.Embed:
 
 def get_embed(media: dict, message_type: int) -> discord.Embed:
     """
+    Generates an embed message with details about the media.
+
     message_type (int):
         0 - added
         1 - added (playlist)

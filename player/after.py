@@ -4,7 +4,10 @@ from discord.ext import commands
 from utils import get_data, get_base_embed
 from alvesmusic import AlvesMusic
 
-async def play_next(bot: AlvesMusic, ctx: commands.Context) -> None:
+async def play_next(bot: AlvesMusic, ctx: commands.Context):
+    """
+    Play the next song in the queue if available.
+    """
     from . import play_song
 
     data: dict = get_data(bot, ctx.guild.id)
