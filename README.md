@@ -7,9 +7,9 @@ directly in your voice channels.
 
 - Play music from **YouTube**
 
-- **Queue management** (play, clear, remove, shuffle)
+- **Queue management** (play, clear, remove, shuffle, ...)
 
-- **Playback controls** (pause, resume, skip, stop)
+- **Playback controls** (pause, resume, skip, stop, ...)
 
 - **Supports playlists**
 
