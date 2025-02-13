@@ -240,18 +240,18 @@ If you want to **keep the bot running even after closing your terminal**, you ca
 
 ### Commands
 
-| Command               | Description                             |
-|-----------------------|-----------------------------------------|
-| `!play <search\|URL>` | Plays a song or adds it to the queue    |
-| `!skip`               | Skips to the next song                  |
-| `!playing`            | Shows the currently playing song        |
-| `!queue [page]`       | Displays the current queue              |
-| `!remove`             | Removes the song at the specified index |
-| `!clear`              | Clears the queue                        |
-| `!shuffle`            | Randomly shuffles the queue             |
-| `!pause`              | Pauses the current song                 |
-| `!resume`             | Resumes the paused song                 |
-| `!stop`               | Stops playback and clears the queue     |
+| Command               | Description                                           |
+|-----------------------|-------------------------------------------------------|
+| `!play <search\|URL>` | Plays a song or adds it to the queue                  |
+| `!skip [number]`      | Skips to the next song or a set number from the queue |
+| `!playing`            | Shows the currently playing song                      |
+| `!queue [page]`       | Displays the current queue                            |
+| `!remove`             | Removes the song at the specified index               |
+| `!clear`              | Clears the queue                                      |
+| `!shuffle`            | Randomly shuffles the queue                           |
+| `!pause`              | Pauses the current song                               |
+| `!resume`             | Resumes the paused song                               |
+| `!stop`               | Stops playback and clears the queue                   |
 
 ---
 

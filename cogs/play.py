@@ -6,6 +6,10 @@ from player import play_song
 
 class Play(commands.Cog):
     def __init__(self, bot: AlvesMusic):
+        """
+        Initialize the Play cog.
+        """
+
         self.bot = bot
 
     @commands.command()
@@ -14,25 +18,26 @@ class Play(commands.Cog):
         """
         Plays a song/playlist or adds it to the queue.
         """
-        # Sending the search embed
 
+        # Send the search embed
         embed = get_base_embed("🔍 Searching")
         embed.description = "Searching for **{}**, this may take a moment.".format(query)
-        message = await ctx.send(embed=embed)
 
-        # Searching for the track(s)
+        message = await ctx.send(embed=embed) 
 
+        # Retrieve the guild's music data and queue
         data: dict = get_data(self.bot, ctx.guild.id)
         queue: list[dict] = data["queue"]
 
         try:
+            # Extract track(s) from the search query
             info = await self.bot.loop.run_in_executor(None, extract, query)
 
             if "entries" in info:
-                # No, one, or multiple results
+                # Handle cases where multiple or no results are returned
 
                 if not info["entries"]:
-                    # No results, raising an error
+                    # No results found
                     # Example: !play unyoxhgikwdbplecfjqa
 
                     raise Exception("No results found for **{}**.".format(query))
@@ -42,9 +47,11 @@ class Play(commands.Cog):
 
                     first: dict = info["entries"][0]
 
+                    # Ensure essential data is available
                     if not first.get("title") or not first.get("url"):
                         raise Exception("Unable to extract the video title or URL.")
 
+                    # Create song dictionary
                     song = {
                         "title": first["title"],
                         "url": first["url"],
@@ -53,21 +60,26 @@ class Play(commands.Cog):
                     }
 
                     if data["player_state"] != 0:
+                        # Add the song to the queue if music is already playing
                         queue.append(song.copy())
 
+                        # Add additional song details for the embed
                         song["channel"] = first.get("channel")
                         song["channel_url"] = first.get("channel_url")
                         song["view_count"] = first.get("view_count")
                         song["thumbnail"] = get_thumbnail_url(first.get("id"))
 
                         embed = get_embed(song, 0)
+
                         await message.edit(embed=embed)
                     else:
+                        # Play the song immediately if no music is currently playing
                         await play_song(self.bot, song, message)
                 else:
                     # Multiple results (from a YouTube playlist/mix)
                     # Example: !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
 
+                    # Ensure essential data is available
                     if not info.get("title") or not info.get("webpage_url"):
                         raise Exception("Unable to extract the video title or URL.")
 
@@ -75,6 +87,8 @@ class Play(commands.Cog):
 
                     songs = []
                     total_duration = 0
+
+                    # Process all entries in the playlist
                     for entry in entries:
                         if not entry.get("title") or not entry.get("url"):
                             raise Exception("Unable to extract the video title or URL.")
@@ -91,8 +105,10 @@ class Play(commands.Cog):
 
                         songs.append(song)
 
+                    # Add all songs to the queue
                     queue.extend(songs)
 
+                    # Create playlist metadata for the embed
                     playlist = {
                         "title": info["title"],
                         "url": info["webpage_url"],
@@ -106,18 +122,23 @@ class Play(commands.Cog):
                     }
 
                     embed = get_embed(playlist, 1)
+
                     await message.edit(embed=embed)
 
+                    # Start playback if nothing is currently playing
                     if data["player_state"] == 0:
                         queue.remove(songs[0])
+
                         await play_song(self.bot, songs[0])
             else:
                 # A single result (from a YouTube URL)
                 # Example: !play https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp
 
+                # Ensure essential data is available
                 if not info.get("title") or not info.get("webpage_url"):
                     raise Exception("Unable to extract the video title or URL.")
 
+                # Create song dictionary
                 song = {
                     "title": info["title"],
                     "url": info["webpage_url"],
@@ -126,20 +147,23 @@ class Play(commands.Cog):
                 }
 
                 if data["player_state"] != 0:
+                    # Add the song to the queue if music is already playing
                     queue.append(song.copy())
 
+                    # Add additional song details for the embed
                     song["channel"] = info.get("channel")
                     song["channel_url"] = info.get("channel_url")
                     song["view_count"] = info.get("view_count")
                     song["thumbnail"] = info.get("thumbnail")
 
                     embed = get_embed(song, 0)
+
                     await message.edit(embed=embed)
                 else:
+                    # Play the song immediately if no music is currently playing
                     await play_song(self.bot, song, message)
         except Exception as err:
-            # Error during search
-
+            # Handle errors during the search process
             embed = get_base_embed("❌ Error during search")
             embed.description = str(err)
 
@@ -149,4 +173,6 @@ async def setup(bot: AlvesMusic):
     """
     Load the cog into the bot.
     """
+
+    # Add the Play cog to the bot
     await bot.add_cog(Play(bot))
