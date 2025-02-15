@@ -33,7 +33,7 @@ directly in your voice channels.
 
   - **Adding a playlist**
 
-    `!play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43`
+    `!play https://www.youtube.com/playlist?list=PLh4Eme5gACZHaNOYGUuj_wFO0IR5x54Ad`
 
     ![screen2](screenshots/screen2.png)
 

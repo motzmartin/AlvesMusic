@@ -58,7 +58,7 @@ class Play(commands.Cog):
                     else:
                         await play_song(self.bot, song, message)
                 else:
-                    # !play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43
+                    # !play https://www.youtube.com/playlist?list=PLh4Eme5gACZHaNOYGUuj_wFO0IR5x54Ad
 
                     if not info.get("title") or not info.get("webpage_url"):
                         raise Exception("Unable to extract the video title or URL.")
