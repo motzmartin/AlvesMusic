@@ -1,8 +1,8 @@
 from discord.ext import commands
 
+from utils import *
+from player import *
 from alvesmusic import AlvesMusic
-from utils import extract, voice_check, get_data, get_embed, get_base_embed, get_thumbnail_url
-from player import play_song
 
 class Play(commands.Cog):
     def __init__(self, bot: AlvesMusic):
@@ -69,7 +69,7 @@ class Play(commands.Cog):
                         song["view_count"] = first.get("view_count")
                         song["thumbnail"] = get_thumbnail_url(first.get("id"))
 
-                        embed = get_embed(song, 0)
+                        embed = get_media_embed(song, 0)
 
                         await message.edit(embed=embed)
                     else:
@@ -85,25 +85,28 @@ class Play(commands.Cog):
 
                     entries: list[dict] = info["entries"]
 
+                    preview = ""
                     songs = []
-                    total_duration = 0
 
                     # Process all entries in the playlist
-                    for entry in entries:
-                        if not entry.get("title") or not entry.get("url"):
+                    for i in range(len(entries)):
+                        if not entries[i].get("title") or not entries[i].get("url"):
                             raise Exception("Unable to extract the video title or URL.")
 
                         song = {
-                            "title": entry["title"],
-                            "url": entry["url"],
-                            "duration": entry.get("duration"),
+                            "title": entries[i]["title"],
+                            "url": entries[i]["url"],
+                            "duration": entries[i].get("duration"),
                             "context": ctx
                         }
 
-                        if song["duration"]:
-                            total_duration += song["duration"]
+                        if i < 3:
+                            preview += "{}\n".format(get_inline_details(song, author=False))
 
                         songs.append(song)
+
+                    if len(songs) > 3:
+                        preview += "**... ({} more)**".format(len(songs) - 3)
 
                     # Add all songs to the queue
                     queue.extend(songs)
@@ -112,16 +115,17 @@ class Play(commands.Cog):
                     playlist = {
                         "title": info["title"],
                         "url": info["webpage_url"],
-                        "count": len(entries),
+                        "count": len(songs),
+                        "preview": preview,
                         "channel": info.get("channel"),
                         "channel_url": info.get("channel_url"),
                         "view_count": info.get("view_count"),
-                        "duration": total_duration,
+                        "duration": sum(s["duration"] for s in songs if s["duration"]),
                         "thumbnail": get_thumbnail_url(entries[0].get("id")),
                         "context": ctx
                     }
 
-                    embed = get_embed(playlist, 1)
+                    embed = get_media_embed(playlist, 1)
 
                     await message.edit(embed=embed)
 
@@ -156,7 +160,7 @@ class Play(commands.Cog):
                     song["view_count"] = info.get("view_count")
                     song["thumbnail"] = info.get("thumbnail")
 
-                    embed = get_embed(song, 0)
+                    embed = get_media_embed(song, 0)
 
                     await message.edit(embed=embed)
                 else:

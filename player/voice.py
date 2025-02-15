@@ -2,8 +2,8 @@ import asyncio
 import discord
 from discord.ext import commands
 
+from utils import *
 from alvesmusic import AlvesMusic
-from utils import extract_audio, to_timecode, get_data, get_embed, get_base_embed
 
 # FFMPEG options for better audio stream handling
 FFMPEG_OPTIONS = {
@@ -28,15 +28,7 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
     # Create a loading embed
     embed = get_base_embed("⏳ Loading...")
-    embed.description = "Loading [**{}**]({})".format(song["title"], song["url"])
-
-    # Add song duration if available
-    if song["duration"]:
-        embed.description += " ({})".format(to_timecode(song["duration"]))
-
-    # Add requester information if available
-    if context.author:
-        embed.set_footer(text="Song requested by {}".format(context.author.global_name), icon_url=context.author.avatar.url)
+    embed.description = "Loading {}".format(get_inline_details(song))
 
     # Send or update the message with the loading embed
     if message:
@@ -102,7 +94,7 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
         data["player_state"] = 1
 
         # Create an embed for playback information
-        embed = get_embed(new_song, 2)
+        embed = get_media_embed(new_song, 2)
 
         # Send or update the message with the playback embed
         if message:

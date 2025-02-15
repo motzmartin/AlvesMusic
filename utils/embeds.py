@@ -21,7 +21,27 @@ def get_base_embed(title: str = None) -> discord.Embed:
 
     return embed
 
-def get_embed(media: dict, message_type: int) -> discord.Embed:
+def get_inline_details(song: dict, author: bool = True) -> str:
+    """
+    Formats song details into a string.
+    """
+
+    # Format song details
+    res = "[**{}**]({})".format(song["title"], song["url"])
+
+    # Add duration if available
+    if song["duration"]:
+        res += " ({})".format(to_timecode(song["duration"]))
+
+    if author:
+        # Add song requester information if available
+        context: commands.Context = song["context"]
+        if context.author:
+            res += " *{}*".format(context.author.global_name)
+
+    return res
+
+def get_media_embed(media: dict, message_type: int) -> discord.Embed:
     """
     Generates an embed message with details about the media.
 
@@ -52,7 +72,7 @@ def get_embed(media: dict, message_type: int) -> discord.Embed:
     if message_type == 0:
         embed.description = "The song {} has been added to the queue.".format(link)
     elif message_type == 1:
-        embed.description = "The **{}** tracks from the playlist {} have been added to the queue.".format(media["count"], link)
+        embed.description = "The **{}** tracks from the playlist {} have been added to the queue:\n\n{}".format(media["count"], link, media["preview"])
     elif message_type == 2:
         embed.description = "Now playing {}".format(link)
     elif message_type == 3:
@@ -76,6 +96,6 @@ def get_embed(media: dict, message_type: int) -> discord.Embed:
 
     # Add footer with requester information if available
     if context.author:
-        embed.set_footer(text="{} requested by {}".format("Tracks" if message_type == 1 else "Song", context.author.global_name), icon_url=context.author.avatar.url)
+        embed.set_footer(text="Requested by {}".format(context.author.global_name), icon_url=context.author.avatar.url)
 
     return embed

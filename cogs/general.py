@@ -2,7 +2,7 @@ import random
 import discord
 from discord.ext import commands
 
-from utils import to_timecode, voice_check, get_data, get_embed, get_base_embed
+from utils import *
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -39,33 +39,18 @@ class General(commands.Cog):
                     for _ in range(number):
                         removed.append(queue.pop(0))
 
-                    removed_list = ""
-                    removed_duration = 0
+                    # Create a success embed
+                    embed = get_base_embed("⏭️ Skipped")
+                    embed.description = "Skipped **{}** song{} from the queue:\n\n".format(number, "s" if number > 1 else "")
 
                     # Format removed songs for the embed message
                     for i in range(len(removed)):
-                        song: dict = removed[i]
+                        embed.description += "**{}.** {}\n".format(i + 1, get_inline_details(removed[i]))
 
-                        # Format song details
-                        removed_list += "**{}.** [**{}**]({})".format(i + 1, song["title"], song["url"])
+                    # Calculate total skipped duration
+                    removed_duration = sum(s["duration"] for s in removed if s["duration"])
 
-                        # Add duration if available
-                        if song["duration"]:
-                            removed_list += " ({})".format(to_timecode(song["duration"]))
-                            removed_duration += song["duration"]
-
-                        # Add song requester information if available
-                        context: commands.Context = song["context"]
-                        if context.author:
-                            removed_list += " *{}*".format(context.author.global_name)
-
-                        removed_list += "\n"
-
-                    # Create a success embed
-                    embed = get_base_embed("⏭️ Skipped")
-                    embed.description = "Skipped **{}** song{} from the queue :\n\n{}".format(number, "s" if number > 1 else "", removed_list)
-
-                    # Add total skipped duration if available
+                    # Add total skipped duration if it is non-zero
                     if removed_duration:
                         embed.add_field(name="Total Skipped Duration", value=to_timecode(removed_duration))
 
@@ -96,7 +81,7 @@ class General(commands.Cog):
         # Check if music is currently playing
         if data["player_state"] == 1:
             # Create an embed for the currently playing song
-            embed = get_embed(data["playing"], 3)
+            embed = get_media_embed(data["playing"], 3)
         else:
             # Create an embed indicating no music is playing
             embed = get_base_embed("🔇 No Music Playing")
@@ -121,33 +106,18 @@ class General(commands.Cog):
 
             # Validate the requested page number
             if page >= 1 and page <= max_page:
-                songs_list = ""
-                total_duration = 0
+                # Create an embed for the queue
+                embed = get_base_embed("📜 Queue - Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else ""))
+                embed.description = ""
 
                 # Iterate over the songs in the requested page range
                 for i in range((page - 1) * 20, min(page * 20, len(queue))):
-                    song: dict = queue[i]
+                    embed.description += "**{}.** {}\n".format(i + 1, get_inline_details(queue[i]))
 
-                    # Format song details
-                    songs_list += "**{}.** [**{}**]({})".format(i + 1, song["title"], song["url"])
+                # Calculate total duration
+                total_duration = sum(s["duration"] for s in queue if s["duration"])
 
-                    # Add song duration if available
-                    if song["duration"]:
-                        songs_list += " ({})".format(to_timecode(song["duration"]))
-                        total_duration += song["duration"]
-
-                    # Add the requester’s name if available
-                    context: commands.Context = song["context"]
-                    if context.author:
-                        songs_list += " *{}*".format(context.author.global_name)
-
-                    songs_list += "\n"
-
-                # Create an embed for the queue
-                embed = get_base_embed("📜 Queue - Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else ""))
-                embed.description = songs_list
-
-                # Add total duration of the displayed songs if available
+                # Add total duration of the displayed songs if it is non-zero
                 if total_duration:
                     embed.add_field(name="Total Duration", value=to_timecode(total_duration))
             else:
@@ -179,18 +149,7 @@ class General(commands.Cog):
 
                 # Create an embed confirming the removal
                 embed = get_base_embed("🗑️ Song removed")
-                embed.description = "The song [**{}**]({})".format(removed["title"], removed["url"])
-
-                # Add the song duration if available
-                if removed["duration"]:
-                    embed.description += " ({})".format(to_timecode(removed["duration"]))
-
-                embed.description += " has been removed from the queue."
-
-                # Add song requester information if available
-                context: commands.Context = removed["context"]
-                if context.author:
-                    embed.set_footer(text="Song requested by {}".format(context.author.global_name), icon_url=context.author.avatar.url)
+                embed.description = "This song has been removed from the queue:\n\n**{}.** {}".format(index, get_inline_details(removed))
             else:
                 # Raise an error if the index is invalid
                 raise commands.BadArgument()

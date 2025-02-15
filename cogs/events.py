@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils import get_base_embed
+from utils import *
 from alvesmusic import AlvesMusic
 
 class Events(commands.Cog):
