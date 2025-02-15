@@ -48,6 +48,7 @@ class Play(commands.Cog):
 
                         song["channel"] = first.get("channel")
                         song["channel_url"] = first.get("channel_url")
+                        song["position"] = len(queue)
                         song["view_count"] = first.get("view_count")
                         song["thumbnail"] = get_thumbnail_url(first.get("id"))
 
@@ -131,6 +132,7 @@ class Play(commands.Cog):
 
                     song["channel"] = info.get("channel")
                     song["channel_url"] = info.get("channel_url")
+                    song["position"] = len(queue)
                     song["view_count"] = info.get("view_count")
                     song["thumbnail"] = info.get("thumbnail")
 

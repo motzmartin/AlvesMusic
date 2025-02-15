@@ -43,6 +43,11 @@ class General(commands.Cog):
                     await ctx.send(embed=embed)
                 else:
                     raise commands.BadArgument()
+            else:
+                embed = get_base_embed("⏭️ Skipped")
+                embed.description = "Skipped {}".format(get_inline_details(data["playing"]))
+
+                await ctx.send(embed=embed)
 
             voice.stop()
         else:
@@ -68,19 +73,26 @@ class General(commands.Cog):
         queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
 
         if queue:
-            max_page = (len(queue) + 19) // 20
+            max_page = (len(queue) + 9) // 10
 
             if page > 0 and page <= max_page:
-                embed = get_base_embed("📜 Queue - Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else ""))
+                embed = get_base_embed("📜 Current Queue")
                 embed.description = ""
 
-                for i in range((page - 1) * 20, min(page * 20, len(queue))):
+                for i in range((page - 1) * 10, min(page * 10, len(queue))):
                     embed.description += "{}\n".format(get_inline_details(queue[i], index=(i + 1)))
+
+                remaining = len(queue) - page * 10
+
+                if remaining > 0:
+                    embed.description += "**... ({} more)**".format(remaining)
 
                 total_duration = sum(song["duration"] for song in queue if song["duration"])
 
                 if total_duration:
                     embed.add_field(name="Total Duration", value=to_timecode(total_duration))
+
+                embed.set_footer(text="Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else ""))
             else:
                 raise commands.BadArgument()
         else:

@@ -28,7 +28,7 @@ def get_inline_details(song: dict, index: int = None, include_author: bool = Tru
     if include_author:
         context: commands.Context = song["context"]
         if context.author:
-            line += " *{}*".format(context.author.global_name)
+            line += " {}".format(context.author.mention)
 
     return line
 
@@ -46,7 +46,7 @@ def get_media_embed(media: dict, message_type: int) -> discord.Embed:
     link = "[**{}**]({})".format(media["title"], media["url"])
 
     if message_type == 0:
-        embed.description = "The song {} has been added to the queue.".format(link)
+        embed.description = "The song {} has been added to the queue at position **{}**.".format(link, media["position"])
     elif message_type == 1:
         embed.description = "The **{}** tracks from the playlist {} have been added to the queue.\n\n{}".format(media["count"], link, media["preview"])
     elif message_type == 2:
