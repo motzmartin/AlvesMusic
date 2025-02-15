@@ -39,9 +39,7 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         if not voice:
             if author_voice:
-                author_channel = author_voice.channel
-
-                voice = await author_channel.connect(self_deaf=True)
+                voice = await author_voice.channel.connect(self_deaf=True)
             else:
                 raise Exception("Cannot join voice channel: user is not connected to any voice channel.")
         elif author_voice:
