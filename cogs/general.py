@@ -70,7 +70,7 @@ class General(commands.Cog):
         if queue:
             max_page = (len(queue) + 19) // 20
 
-            if page >= 1 and page <= max_page:
+            if page > 0 and page <= max_page:
                 embed = get_base_embed("📜 Queue - Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else ""))
                 embed.description = ""
 
