@@ -100,13 +100,13 @@ class Play(commands.Cog):
                             "context": ctx
                         }
 
-                        if i < 3:
-                            preview += "{}\n".format(get_inline_details(song, author=False))
+                        if i < 5:
+                            preview += "**{}.** {}\n".format(i + 1, get_inline_details(song, author=False))
 
                         songs.append(song)
 
-                    if len(songs) > 3:
-                        preview += "**... ({} more)**".format(len(songs) - 3)
+                    if len(songs) > 5:
+                        preview += "**... ({} more)**".format(len(songs) - 5)
 
                     # Add all songs to the queue
                     queue.extend(songs)

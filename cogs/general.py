@@ -15,9 +15,9 @@ class General(commands.Cog):
 
     @commands.command()
     @voice_check()
-    async def skip(self, ctx: commands.Context, number: int = 0):
+    async def skip(self, ctx: commands.Context, number: int = 1):
         """
-        Skips to the next song, or a specified number of songs from the queue.
+        Skips the current song, or all songs up to the specified one if a number is provided.
         """
 
         # Retrieve the bot's voice client and the guild's music data
@@ -29,23 +29,26 @@ class General(commands.Cog):
             # Retrieve the guild's queue
             queue: list[dict] = data["queue"]
 
-            # Check if a skip number is provided
-            if number:
-                # Validate that the number is within the queue length
-                if number >= 1 and number <= len(queue):
+            # Check if a skip number is provided (not equal to 1)
+            if number != 1:
+                # Validate that the number is valid
+                if number >= 2 and number <= len(queue):
                     removed = []
 
                     # Remove the specified number of songs from the queue
-                    for _ in range(number):
+                    for _ in range(number - 1):
                         removed.append(queue.pop(0))
 
                     # Create a success embed
                     embed = get_base_embed("⏭️ Skipped")
-                    embed.description = "Skipped **{}** song{} from the queue:\n\n".format(number, "s" if number > 1 else "")
+                    embed.description = "Skipped **{}** song{} from the queue:\n\n".format(number - 1, "s" if (number - 1) > 1 else "")
 
                     # Format removed songs for the embed message
-                    for i in range(len(removed)):
+                    for i in range(min(10, len(removed))):
                         embed.description += "**{}.** {}\n".format(i + 1, get_inline_details(removed[i]))
+
+                    if len(removed) > 10:
+                        embed.description += "**... ({} more)**".format(len(removed) - 10)
 
                     # Calculate total skipped duration
                     removed_duration = sum(s["duration"] for s in removed if s["duration"])

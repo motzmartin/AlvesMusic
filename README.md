@@ -43,6 +43,12 @@ directly in your voice channels.
 
     ![screen3](screenshots/screen3.png)
 
+  - **Skipping multiple songs**
+
+    `!skip 31`
+
+    ![screen4](screenshots/screen4.png)
+
 </details>
 
 ---

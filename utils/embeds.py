@@ -80,7 +80,7 @@ def get_media_embed(media: dict, message_type: int) -> discord.Embed:
 
     # Add the channel name and link if available
     if media["channel"] and media["channel_url"]:
-        embed.add_field(name="Channel", value="[{}]({})".format(media["channel"], media["channel_url"]))
+        embed.add_field(name="Channel", value="[**{}**]({})".format(media["channel"], media["channel_url"]))
 
     # Add view count if available
     if media["view_count"]:

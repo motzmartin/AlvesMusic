@@ -22,7 +22,7 @@ class Help(commands.Cog):
 
         # Add commands related to playback
         embed.add_field(name="**!play <search|url>**", value="Plays a song/playlist or adds it to the queue.", inline=False)
-        embed.add_field(name="**!skip [number]**", value="Skips to the next song, or a specified number of songs from the queue.", inline=False)
+        embed.add_field(name="**!skip [number]**", value="Skips the current song, or all songs up to the specified one if a number is provided.", inline=False)
         embed.add_field(name="**!playing**", value="Shows the currently playing song.", inline=False)
 
         # Add commands related to queue management
