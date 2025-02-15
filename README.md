@@ -21,23 +21,29 @@ directly in your voice channels.
 
 ## 📸 Examples
 
-- **Playing a track**
+<details>
 
-  `!play calogero 1987`
+  **<summary>Screenshots</summary>**
 
-  ![screen1](screenshots/screen1.png)
+  - **Playing a track**
 
-- **Adding a playlist**
+    `!play calogero 1987`
 
-  `!play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43`
+    ![screen1](screenshots/screen1.png)
 
-  ![screen2](screenshots/screen2.png)
+  - **Adding a playlist**
 
-- **Displaying the queue**
+    `!play https://www.youtube.com/playlist?list=PLdSUTU0oamrwC0PY7uUc0EJMKlWCiku43`
 
-  `!queue`
+    ![screen2](screenshots/screen2.png)
 
-  ![screen3](screenshots/screen3.png)
+  - **Displaying the queue**
+
+    `!queue`
+
+    ![screen3](screenshots/screen3.png)
+
+</details>
 
 ---
 
@@ -91,8 +97,6 @@ The bot requires:
 - `python-dotenv` (to load environment variables)
 
 - `PyNaCl` (for cryptographic operations and voice support in Discord bots)
-
-- `millify` (for view count formatting)
 
 ### 4. Install FFmpeg (Required for Audio)
 

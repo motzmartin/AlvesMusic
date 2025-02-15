@@ -55,24 +55,32 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
         # Create the FFMPEG audio source
         source = discord.FFmpegOpusAudio(info["url"], **FFMPEG_OPTIONS)
 
-        # Retrieve the author's voice state
+        # Retrieve the bot's current voice connection and the author's voice state
+        voice: discord.VoiceClient = context.voice_client
         author_voice: discord.VoiceClient = context.author.voice
 
-        # Check if the author is connected to a voice channel
-        if author_voice:
-            voice: discord.VoiceClient = context.voice_client
+        # Check if the bot is not connected to a voice channel
+        if not voice:
+            # If the author is in a voice channel
+            if author_voice:
+                # Get the voice channel the author is in
+                author_channel = author_voice.channel
+
+                # Connect the bot to the author's voice channel
+                voice = await author_channel.connect(self_deaf=True)
+            else:
+                # Raise an exception if the user is not in a voice channel
+                raise Exception("Cannot join voice channel: user is not connected to any voice channel.")
+        # If the bot is already connected and the author is in a voice channel
+        elif author_voice:
+            # Get the author's current voice channel
             author_channel = author_voice.channel
 
-            # Connect to the author's voice channel if the bot is not connected
-            if not voice:
-                voice = await author_channel.connect(self_deaf=True)
-            # Move the bot to the correct channel if needed
-            elif voice.channel != author_channel:
+            # If the bot is in a different voice channel than the author
+            if voice.channel != author_channel:
+                # Move the bot to the author's voice channel
                 await voice.move_to(author_channel)
                 await voice.guild.change_voice_state(channel=author_channel, self_deaf=True)
-        else:
-            # Raise an exception if the user is no longer in a voice channel
-            raise Exception("The user is no longer connected to the voice channel.")
 
         # Start playing the track and schedule the next song when playback ends
         voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(play_next(bot, context), bot.loop))

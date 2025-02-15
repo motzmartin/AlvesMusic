@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from millify import millify
 
 from . import to_timecode
 
@@ -63,9 +62,9 @@ def get_embed(media: dict, message_type: int) -> discord.Embed:
     if media["channel"] and media["channel_url"]:
         embed.add_field(name="Channel", value="[{}]({})".format(media["channel"], media["channel_url"]))
 
-    # Add view count (formatted with millify) if available
+    # Add view count if available
     if media["view_count"]:
-        embed.add_field(name="Views", value=millify(media["view_count"]))
+        embed.add_field(name="Views", value="{:,}".format(media["view_count"]).replace(",", " "))
 
     # Add song duration if available
     if media["duration"]:
