@@ -1,23 +1,23 @@
 import discord
 from discord.ext import commands
 
-from utils import get_inline_details, get_thumbnail_url, get_media_embed, extract_remaining
+from utils import get_thumbnail_url, get_media_embed, extract_remaining, get_inline_details
 from player import play_song
 from alvesmusic import AlvesMusic
 
-async def process_yt_tab(bot: AlvesMusic,
+async def process_playlist(bot: AlvesMusic,
                     ctx: commands.Context,
-                    info: dict,
+                    message: discord.Message,
                     data: dict,
                     queue: list[dict],
-                    message: discord.Message):
+                    info: dict):
     if not info.get("entries") or not info.get("title") or not info.get("webpage_url"):
-        raise Exception("Error occurred during extraction.")
+        raise Exception("Error occurred during extraction. (3)")
 
     first: dict = info["entries"][0]
 
     if not first.get("title") or not first.get("url"):
-        raise Exception("Error occurred during extraction.")
+        raise Exception("Error occurred during extraction. (4)")
 
     pending = {
         "title": info["title"],
@@ -62,7 +62,7 @@ async def process_yt_tab(bot: AlvesMusic,
         return await message.delete()
 
     if not remaining_info.get("title") or not remaining_info.get("webpage_url"):
-        raise Exception("Error occurred during extraction.")
+        raise Exception("Error occurred during extraction. (5)")
 
     entries: list[dict] = remaining_info["entries"]
 
@@ -72,7 +72,7 @@ async def process_yt_tab(bot: AlvesMusic,
 
     for i in range(len(entries)):
         if not entries[i].get("title") or not entries[i].get("url"):
-            raise Exception("Error occurred during extraction.")
+            raise Exception("Error occurred during extraction. (6)")
 
         song = {
             "title": entries[i]["title"],

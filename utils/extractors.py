@@ -22,7 +22,7 @@ def extract_query(query: str) -> dict:
     with YoutubeDL(ydl_options) as ydl:
         return ydl.extract_info(query, download=False)
 
-def extract_remaining(url: str) -> dict:
+def extract_remaining(playlist_url: str) -> dict:
     ydl_options = {
         "extract_flat": True,
         "playlist_items": "2-",
@@ -31,7 +31,7 @@ def extract_remaining(url: str) -> dict:
     }
 
     with YoutubeDL(ydl_options) as ydl:
-        return ydl.extract_info(url, download=False)
+        return ydl.extract_info(playlist_url, download=False)
 
 def get_thumbnail_url(video_id: str) -> str:
     if video_id:

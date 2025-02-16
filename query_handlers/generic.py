@@ -1,22 +1,29 @@
 import discord
 from discord.ext import commands
 
-from utils import get_media_embed, get_thumbnail_url
+from utils import get_thumbnail_url, get_media_embed
 from player import play_song
 from alvesmusic import AlvesMusic
 
-async def process_yt(bot: AlvesMusic,
+async def process_generic(bot: AlvesMusic,
                     ctx: commands.Context,
-                    info: dict,
+                    message: discord.Message,
                     data: dict,
                     queue: list[dict],
-                    message: discord.Message):
-    if not info.get("title") or not info.get("webpage_url"):
-        raise Exception("Error occurred during extraction.")
+                    info: dict,
+                    is_search: bool = False):
+    if is_search:
+        info = info["entries"][0]
+        url = "url"
+    else:
+        url = "webpage_url"
+
+    if not info.get("title") or not info.get(url):
+        raise Exception("Error occurred during extraction. (2)")
 
     song = {
         "title": info["title"],
-        "url": info["webpage_url"],
+        "url": info[url],
         "duration": info.get("duration"),
         "context": ctx
     }
