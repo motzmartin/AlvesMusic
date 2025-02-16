@@ -61,7 +61,7 @@ class General(commands.Cog):
         data: dict = get_data(self.bot, ctx.guild.id)
 
         if data["player_state"] == 1:
-            embed = get_media_embed(data["playing"], 3)
+            embed = get_media_embed(data["playing"], 5)
         else:
             embed = get_base_embed("🔇 No Music Playing")
             embed.description = "There is no music currently playing."

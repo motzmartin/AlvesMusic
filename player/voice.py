@@ -2,7 +2,7 @@ import asyncio
 import discord
 from discord.ext import commands
 
-from utils import get_data, get_base_embed, get_inline_details, extract_audio, get_media_embed
+from utils import get_data, get_base_embed, get_inline_details, extract_audio, get_media_embed, get_thumbnail_url
 from alvesmusic import AlvesMusic
 
 FFMPEG_OPTIONS = {
@@ -58,14 +58,14 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
             "channel_url": info.get("channel_url"),
             "view_count": info.get("view_count"),
             "duration": info.get("duration"),
-            "thumbnail": info.get("thumbnail"),
+            "thumbnail": get_thumbnail_url(info.get("id")),
             "context": context
         }
         data["playing"] = new_song
 
         data["player_state"] = 1
 
-        embed = get_media_embed(new_song, 2)
+        embed = get_media_embed(new_song, 4)
 
         if message:
             await message.edit(embed=embed)

@@ -11,7 +11,7 @@ directly in your voice channels.
 
 - **Queue management** (remove, clear, shuffle, ...)
 
-- **Supports playlists**
+- **Supports massive playlists**
 
 - Uses **cookies.txt** to bypass YouTube restrictions
 
@@ -27,13 +27,13 @@ directly in your voice channels.
 
   - **Playing a track**
 
-    `!play calogero 1987`
+    `!play espresso`
 
     ![screen1](screenshots/screen1.png)
 
-  - **Adding a playlist**
+  - **Adding a (big) playlist**
 
-    `!play https://www.youtube.com/playlist?list=PLh4Eme5gACZHaNOYGUuj_wFO0IR5x54Ad`
+    `!play https://www.youtube.com/playlist?list=PL_oFlvgqkrjUVQwiiE3F3k3voF4tjXeP0`
 
     ![screen2](screenshots/screen2.png)
 
@@ -45,7 +45,7 @@ directly in your voice channels.
 
   - **Skipping multiple songs**
 
-    `!skip 31`
+    `!skip 1093`
 
     ![screen4](screenshots/screen4.png)
 
