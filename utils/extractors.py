@@ -38,15 +38,3 @@ def get_thumbnail_url(video_id: str) -> str:
         return "https://i.ytimg.com/vi/{}/mqdefault.jpg".format(video_id)
     else:
         return None
-
-def test(query: str) -> dict:
-    ydl_options = {
-        "extract_flat": "in_playlist",
-        "default_search": "auto",
-        "playlist_items": "1",
-        "cookiefile": "cookies.txt",
-        "quiet": True
-    }
-
-    with YoutubeDL(ydl_options) as ydl:
-        return ydl.extract_info(query, download=False)
