@@ -30,7 +30,7 @@ async def process_yt_tab(bot: AlvesMusic,
         "context": ctx
     }
 
-    embed = get_media_embed(pending, 3)
+    embed = get_media_embed(pending, 2)
 
     await message.edit(embed=embed)
 
@@ -107,6 +107,6 @@ async def process_yt_tab(bot: AlvesMusic,
         "context": ctx
     }
 
-    embed = get_media_embed(playlist, 2)
+    embed = get_media_embed(playlist, 1)
 
     await message.edit(embed=embed)

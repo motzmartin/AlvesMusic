@@ -65,7 +65,7 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         data["player_state"] = 1
 
-        embed = get_media_embed(new_song, 4)
+        embed = get_media_embed(new_song, 3)
 
         if message:
             await message.edit(embed=embed)

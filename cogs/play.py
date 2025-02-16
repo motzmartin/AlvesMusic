@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from utils import voice_check, get_base_embed, get_data, extract
+from utils import voice_check, get_base_embed, get_data, extract_query
 from process_handlers import process_yt_search, process_yt_tab, process_yt
 from alvesmusic import AlvesMusic
 
@@ -20,7 +20,7 @@ class Play(commands.Cog):
         queue: list[dict] = data["queue"]
 
         try:
-            info = await self.bot.loop.run_in_executor(None, extract, query)
+            info = await self.bot.loop.run_in_executor(None, extract_query, query)
 
             if not info.get("extractor"):
                 raise Exception("Error occurred during extraction.")

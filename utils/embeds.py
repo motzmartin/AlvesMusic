@@ -42,23 +42,23 @@ def get_media_embed(media: dict, message_type: int) -> discord.Embed:
     """
     message_type (int):
         0 - Added to queue (single song)
-        2 - Added to queue (playlist)
-        3 - Pending
-        4 - Playing
-        5 - Now playing / Paused
+        1 - Added to queue (playlist)
+        2 - Pending
+        3 - Playing
+        4 - Now playing / Paused
     """
 
     context: commands.Context = media["context"]
 
     if message_type == 0:
         embed = get_base_embed("📌 Added to queue")
-    elif message_type == 2:
+    elif message_type == 1:
         embed = get_base_embed("💿 Tracks added to queue")
-    elif message_type == 3:
+    elif message_type == 2:
         embed = get_base_embed("🕐 Pending...")
-    elif message_type == 4:
+    elif message_type == 3:
         embed = get_base_embed("🎶 Now Playing")
-    elif message_type == 5:
+    elif message_type == 4:
         voice: discord.VoiceClient = context.voice_client
         embed = get_base_embed("⏸️ Paused" if voice and voice.is_paused() else "🔊 Now Playing")
 
@@ -69,13 +69,13 @@ def get_media_embed(media: dict, message_type: int) -> discord.Embed:
 
     if message_type == 0:
         embed.description = "The song {} has been added to the queue at **{}.**".format(link, media["position"])
-    elif message_type == 2:
+    elif message_type == 1:
         embed.description = "The **{}** remaining tracks from the playlist {} have been added to the queue.\n\n{}".format(media["count"], link, media["preview"])
-    elif message_type == 3:
+    elif message_type == 2:
         embed.description = "The remaining tracks in the playlist {} are still pending... Please be patient.".format(link)
-    elif message_type == 4:
+    elif message_type == 3:
         embed.description = "Now playing {}".format(link)
-    elif message_type == 5:
+    elif message_type == 4:
         embed.description = link
 
     if media["channel"] and media["channel_url"]:
@@ -85,7 +85,7 @@ def get_media_embed(media: dict, message_type: int) -> discord.Embed:
         embed.add_field(name="Views", value="{:,}".format(media["view_count"]).replace(",", " "))
 
     if media["duration"]:
-        embed.add_field(name="Total Duration" if message_type == 2 else "Duration", value=to_timecode(media["duration"]))
+        embed.add_field(name="Total Duration" if message_type == 1 else "Duration", value=to_timecode(media["duration"]))
 
     if media["thumbnail"]:
         embed.set_thumbnail(url=media["thumbnail"])
