@@ -23,7 +23,9 @@ class General(commands.Cog):
                     skipped_duration = 0
 
                     embed = get_base_embed("⏭️ Skipped")
-                    embed.description = "Skipped **{}** song{} from the queue.\n\n".format(number - 1, "s" if number > 2 else "")
+                    embed.description = "Skipped the **current song** and the next **{}** song{} in the queue.\n\n**Currently playing**\n".format(number - 1, "s" if number > 2 else "")
+
+                    embed.description += "{}\n\n**Queue**\n".format(get_inline_details(data["playing"]))
 
                     for i in range(number - 1):
                         song = queue.pop(0)

@@ -25,29 +25,27 @@ directly in your voice channels.
 
   **<summary>Screenshots</summary>**
 
-  - **Playing a track**
+  - **Playing a (big) playlist**
 
-    `!play espresso`
+    `!play https://www.youtube.com/playlist?list=PLh4Eme5gACZHaNOYGUuj_wFO0IR5x54Ad`
 
-    ![screen1](screenshots/screen1.png)
+    ![pending](screenshots/pending.png)
 
-  - **Adding a (big) playlist**
+    ![now_playing](screenshots/now_playing.png)
 
-    `!play https://www.youtube.com/playlist?list=PL_oFlvgqkrjUVQwiiE3F3k3voF4tjXeP0`
-
-    ![screen2](screenshots/screen2.png)
+    ![tracks_added](screenshots/tracks_added.png)
 
   - **Displaying the queue**
 
     `!queue`
 
-    ![screen3](screenshots/screen3.png)
+    ![queue](screenshots/queue.png)
 
   - **Skipping multiple songs**
 
-    `!skip 1093`
+    `!skip 6`
 
-    ![screen4](screenshots/screen4.png)
+    ![skipped](screenshots/skipped.png)
 
 </details>
 
