@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from utils import voice_check, get_base_embed, get_data, extract_query
+from utils import extract_query, voice_check, get_base_embed
 from query_handlers import process_generic, process_playlist
 from alvesmusic import AlvesMusic
 
@@ -16,26 +16,22 @@ class Play(commands.Cog):
 
         message = await ctx.send(embed=embed) 
 
-        data: dict = get_data(self.bot, ctx.guild.id)
-        queue: list[dict] = data["queue"]
-
         try:
             info = await self.bot.loop.run_in_executor(None, extract_query, query)
 
             if not info.get("extractor"):
-                raise Exception("Error occurred during extraction. (1)")
+                raise Exception("Cannot retrieve extractor.")
 
-            if info["extractor"] == "youtube:search":
-                if info.get("entries"):
-                    await process_generic(self.bot, ctx, message, data, queue, info, is_search=True)
-                else:
-                    raise Exception("No results found for **{}**.".format(query))
+            if info["extractor"] in ["youtube:search", "youtube:tab"] and not info.get("entries"):
+                raise Exception("No results found for **{}**.".format(query))
 
-            elif info["extractor"] == "youtube:tab":
-                await process_playlist(self.bot, ctx, message, data, queue, info)
-
-            elif info["extractor"] == "youtube":
-                await process_generic(self.bot, ctx, message, data, queue, info)
+            match info["extractor"]:
+                case "youtube:search":
+                    await process_generic(self.bot, ctx, message, info["entries"][0], is_search=True)
+                case "youtube:tab":
+                    await process_playlist(self.bot, ctx, message, info)
+                case "youtube":
+                    await process_generic(self.bot, ctx, message, info)
 
         except Exception as err:
             embed = get_base_embed("❌ Error during Search")

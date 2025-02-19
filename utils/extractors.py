@@ -34,7 +34,4 @@ def extract_remaining(playlist_url: str) -> dict:
         return ydl.extract_info(playlist_url, download=False)
 
 def get_thumbnail_url(video_id: str) -> str:
-    if video_id:
-        return "https://i.ytimg.com/vi/{}/mqdefault.jpg".format(video_id)
-    else:
-        return None
+    return "https://i.ytimg.com/vi/{}/mqdefault.jpg".format(video_id) if video_id else ""

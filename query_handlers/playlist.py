@@ -1,23 +1,20 @@
 import discord
 from discord.ext import commands
 
-from utils import get_thumbnail_url, get_media_embed, extract_remaining, get_inline_details
+from utils import extract_remaining, get_thumbnail_url, get_inline_details, get_media_embed
 from player import play_song
 from alvesmusic import AlvesMusic
 
-async def process_playlist(bot: AlvesMusic,
-                    ctx: commands.Context,
-                    message: discord.Message,
-                    data: dict,
-                    queue: list[dict],
-                    info: dict):
-    if not info.get("entries") or not info.get("title") or not info.get("webpage_url"):
-        raise Exception("Error occurred during extraction. (3)")
+async def process_playlist(bot: AlvesMusic, ctx: commands.Context, message: discord.Message, info: dict):
+    data = bot.get_data(ctx.guild.id)
+
+    if not info.get("title") or not info.get("webpage_url"):
+        raise Exception("Cannot retrieve title or URL. (2)")
 
     first: dict = info["entries"][0]
 
     if not first.get("title") or not first.get("url"):
-        raise Exception("Error occurred during extraction. (4)")
+        raise Exception("Cannot retrieve title or URL. (3)")
 
     pending = {
         "title": info["title"],
@@ -25,7 +22,7 @@ async def process_playlist(bot: AlvesMusic,
         "channel": info.get("channel"),
         "channel_url": info.get("channel_url"),
         "view_count": info.get("view_count"),
-        "duration": None,
+        "duration": 0,
         "thumbnail": get_thumbnail_url(first.get("id")),
         "context": ctx
     }
@@ -41,14 +38,14 @@ async def process_playlist(bot: AlvesMusic,
         "context": ctx
     }
 
-    if data["player_state"] != 0:
-        queue.append(song)
+    if not data.is_ready():
+        data.queue.append(song.copy())
 
-        song["position"] = len(queue)
         song["channel"] = first.get("channel")
         song["channel_url"] = first.get("channel_url")
         song["view_count"] = first.get("view_count")
         song["thumbnail"] = get_thumbnail_url(first.get("id"))
+        song["position"] = len(data.queue)
 
         embed = get_media_embed(song, 0)
 
@@ -56,23 +53,24 @@ async def process_playlist(bot: AlvesMusic,
     else:
         await play_song(bot, song)
 
-    remaining_info = await bot.loop.run_in_executor(None, extract_remaining, info["webpage_url"])
+    info = await bot.loop.run_in_executor(None, extract_remaining, info["webpage_url"])
 
-    if not remaining_info.get("entries"):
+    if not info.get("entries"):
         return await message.delete()
 
-    if not remaining_info.get("title") or not remaining_info.get("webpage_url"):
-        raise Exception("Error occurred during extraction. (5)")
+    if not info.get("title") or not info.get("webpage_url"):
+        raise Exception("Cannot retrieve title or URL. (4)")
 
-    entries: list[dict] = remaining_info["entries"]
+    entries: list[dict] = info["entries"]
 
-    songs = []
-    total_duration = 0
     preview = ""
+    total_duration = 0
+
+    songs: list[dict] = []
 
     for i in range(len(entries)):
         if not entries[i].get("title") or not entries[i].get("url"):
-            raise Exception("Error occurred during extraction. (6)")
+            raise Exception("Cannot retrieve title or URL. (5)")
 
         song = {
             "title": entries[i]["title"],
@@ -92,19 +90,19 @@ async def process_playlist(bot: AlvesMusic,
     if len(songs) > 5:
         preview += "**... ({} more)**".format(len(songs) - 5)
 
-    queue.extend(songs)
+    data.queue.extend(songs)
 
     playlist = {
-        "title": remaining_info["title"],
-        "url": remaining_info["webpage_url"],
-        "count": len(songs),
-        "preview": preview,
-        "channel": remaining_info.get("channel"),
-        "channel_url": remaining_info.get("channel_url"),
-        "view_count": remaining_info.get("view_count"),
+        "title": info["title"],
+        "url": info["webpage_url"],
+        "channel": info.get("channel"),
+        "channel_url": info.get("channel_url"),
+        "view_count": info.get("view_count"),
         "duration": total_duration,
         "thumbnail": get_thumbnail_url(entries[0].get("id")),
-        "context": ctx
+        "context": ctx,
+        "count": len(songs),
+        "preview": preview
     }
 
     embed = get_media_embed(playlist, 1)

@@ -2,7 +2,7 @@ import random
 import discord
 from discord.ext import commands
 
-from utils import voice_check, get_data, get_base_embed, get_inline_details, to_timecode, get_media_embed
+from utils import to_timecode, voice_check, get_inline_details, get_base_embed, get_media_embed
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -13,22 +13,20 @@ class General(commands.Cog):
     @voice_check()
     async def skip(self, ctx: commands.Context, number: int = 1):
         voice: discord.VoiceClient = ctx.voice_client
-        data: dict = get_data(self.bot, ctx.guild.id)
+        data = self.bot.get_data(ctx.guild.id)
 
-        if voice and data["player_state"] == 1:
-            queue: list[dict] = data["queue"]
-
+        if voice and data.is_playing():
             if number != 1:
-                if number > 1 and number <= len(queue):
+                if number > 1 and number <= len(data.queue):
                     skipped_duration = 0
 
                     embed = get_base_embed("⏭️ Skipped")
                     embed.description = "Skipped the **current song** and the next **{}** song{} in the queue.\n\n**Currently playing**\n".format(number - 1, "s" if number > 2 else "")
 
-                    embed.description += "{}\n\n**Queue**\n".format(get_inline_details(data["playing"]))
+                    embed.description += "{}\n\n**Queue**\n".format(get_inline_details(data.playing))
 
                     for i in range(number - 1):
-                        song = queue.pop(0)
+                        song = data.queue.pop(0)
 
                         if i < 10:
                             embed.description += "{}\n".format(get_inline_details(song, index=(i + 1)))
@@ -47,7 +45,7 @@ class General(commands.Cog):
                     raise commands.BadArgument()
             else:
                 embed = get_base_embed("⏭️ Skipped")
-                embed.description = "Skipped {}".format(get_inline_details(data["playing"]))
+                embed.description = "Skipped {}".format(get_inline_details(data.playing))
 
                 await ctx.send(embed=embed)
 
@@ -60,10 +58,10 @@ class General(commands.Cog):
 
     @commands.command()
     async def playing(self, ctx: commands.Context):
-        data: dict = get_data(self.bot, ctx.guild.id)
+        data = self.bot.get_data(ctx.guild.id)
 
-        if data["player_state"] == 1:
-            embed = get_media_embed(data["playing"], 4)
+        if data.is_playing():
+            embed = get_media_embed(data.playing, 4)
         else:
             embed = get_base_embed("🔇 No Music Playing")
             embed.description = "There is no music currently playing."
@@ -72,29 +70,29 @@ class General(commands.Cog):
 
     @commands.command()
     async def queue(self, ctx: commands.Context, page: int = 1):
-        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
+        data = self.bot.get_data(ctx.guild.id)
 
-        if queue:
-            max_page = (len(queue) + 9) // 10
+        if data.queue:
+            max_page = (len(data.queue) + 9) // 10
 
             if page > 0 and page <= max_page:
                 embed = get_base_embed("📜 Current Queue")
                 embed.description = ""
 
-                for i in range((page - 1) * 10, min(page * 10, len(queue))):
-                    embed.description += "{}\n".format(get_inline_details(queue[i], index=(i + 1)))
+                for i in range((page - 1) * 10, min(page * 10, len(data.queue))):
+                    embed.description += "{}\n".format(get_inline_details(data.queue[i], index=(i + 1)))
 
-                remaining = len(queue) - page * 10
+                remaining = len(data.queue) - page * 10
 
                 if remaining > 0:
                     embed.description += "**... ({} more)**".format(remaining)
 
-                total_duration = sum(song["duration"] for song in queue if song["duration"])
+                total_duration = sum(song["duration"] for song in data.queue if song["duration"])
 
                 if total_duration:
                     embed.add_field(name="Total Duration", value=to_timecode(total_duration))
 
-                embed.set_footer(text="Page {}/{} ({} track{})".format(page, max_page, len(queue), "s" if len(queue) > 1 else ""))
+                embed.set_footer(text="Page {}/{} ({} track{})".format(page, max_page, len(data.queue), "s" if len(data.queue) > 1 else ""))
             else:
                 raise commands.BadArgument()
         else:
@@ -106,11 +104,11 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def remove(self, ctx: commands.Context, index: int):
-        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
+        data = self.bot.get_data(ctx.guild.id)
 
-        if queue:
-            if index and index > 0 and index <= len(queue):
-                removed = queue.pop(index - 1)
+        if data.queue:
+            if index and index > 0 and index <= len(data.queue):
+                removed = data.queue.pop(index - 1)
 
                 embed = get_base_embed("🗑️ Song Removed")
                 embed.description = "One song has been removed from the queue.\n\n{}".format(get_inline_details(removed, index=index))
@@ -125,10 +123,10 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def clear(self, ctx: commands.Context):
-        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
+        data = self.bot.get_data(ctx.guild.id)
 
-        if queue:
-            queue.clear()
+        if data.queue:
+            data.queue.clear()
 
             embed = get_base_embed("🗑️ Queue Cleared")
             embed.description = "All songs have been removed from the queue."
@@ -141,10 +139,10 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def shuffle(self, ctx: commands.Context):
-        queue: list[dict] = get_data(self.bot, ctx.guild.id)["queue"]
+        data = self.bot.get_data(ctx.guild.id)
 
-        if queue:
-            random.shuffle(queue)
+        if data.queue:
+            random.shuffle(data.queue)
 
             embed = get_base_embed("🔀 Queue Shuffled")
             embed.description = "The order of the songs has been randomly shuffled!"
