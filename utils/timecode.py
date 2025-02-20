@@ -1,4 +1,4 @@
-def to_timecode(seconds: int | float) -> str:
+def to_timecode(seconds: int | float):
     if not isinstance(seconds, int):
         seconds = int(seconds)
 

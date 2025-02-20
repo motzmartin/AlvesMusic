@@ -13,7 +13,7 @@ class AlvesMusic(commands.Bot):
         self.data: dict[int, GuildData] = {}
         self.help_command = None
 
-    def get_data(self, guild_id: int) -> GuildData:
+    def get_data(self, guild_id: int):
         if not guild_id in self.data:
             self.data[guild_id] = GuildData()
 

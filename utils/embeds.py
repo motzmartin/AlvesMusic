@@ -5,7 +5,7 @@ from . import to_timecode
 
 COLOR = "#73BCFF"
 
-def get_inline_details(song: dict, index: int = 0, include_author: bool = True) -> str:
+def get_inline_details(song: dict, index: int = 0, include_author: bool = True):
     line = ""
 
     if index > 0:
@@ -30,7 +30,7 @@ def get_inline_details(song: dict, index: int = 0, include_author: bool = True) 
 
     return line
 
-def get_base_embed(title: str = "") -> discord.Embed:
+def get_base_embed(title: str = ""):
     embed = discord.Embed()
     embed.color = discord.Color.from_str(COLOR)
 
@@ -39,7 +39,7 @@ def get_base_embed(title: str = "") -> discord.Embed:
 
     return embed
 
-def get_media_embed(media: dict, embed_type: int) -> discord.Embed:
+def get_media_embed(media: dict, embed_type: int):
     """
     embed_type (int):
         0 - Added to queue (single song)

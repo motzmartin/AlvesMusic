@@ -10,8 +10,6 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        await self.bot.wait_until_ready()
-
         activity = discord.Game(name="!help")
         await self.bot.change_presence(activity=activity)
 

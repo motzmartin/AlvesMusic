@@ -8,8 +8,8 @@ class GuildData:
         self.playing = {}
         self.player_state = 0
 
-    def is_ready(self) -> bool:
+    def is_ready(self):
         return self.player_state == 0
 
-    def is_playing(self) -> bool:
+    def is_playing(self):
         return self.player_state == 1
