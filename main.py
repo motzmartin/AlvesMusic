@@ -3,7 +3,6 @@ import asyncio
 import logging
 import logging.handlers
 import discord
-from discord.ext import commands
 from dotenv import load_dotenv
 
 from alvesmusic import AlvesMusic

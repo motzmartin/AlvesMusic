@@ -12,10 +12,9 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def skip(self, ctx: commands.Context, number: int = 1):
-        voice: discord.VoiceClient = ctx.voice_client
         data = self.bot.get_data(ctx.guild.id)
 
-        if voice and data.is_playing():
+        if data.is_playing():
             if number != 1:
                 if number > 1 and number <= len(data.queue):
                     skipped_duration = 0
@@ -49,7 +48,10 @@ class General(commands.Cog):
 
                 await ctx.send(embed=embed)
 
-            voice.stop()
+            voice: discord.VoiceClient = ctx.voice_client
+
+            if voice:
+                voice.stop()
         else:
             embed = get_base_embed("❌ Unable to Skip")
             embed.description = "There is no music currently playing."
