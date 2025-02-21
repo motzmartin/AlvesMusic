@@ -13,8 +13,8 @@ def extract_audio(url: str):
 def extract_query(query: str):
     ydl_options = {
         "extract_flat": "in_playlist",
-        "default_search": "auto",
         "playlist_items": "1",
+        "default_search": "auto",
         "cookiefile": "cookies.txt",
         "quiet": True
     }
