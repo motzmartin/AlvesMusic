@@ -1,7 +1,8 @@
+import time
 import discord
 from discord.ext import commands
 
-from . import to_timecode
+from . import GuildData, to_timecode
 
 COLOR = "#73BCFF"
 
@@ -39,7 +40,7 @@ def get_base_embed(title: str = ""):
 
     return embed
 
-def get_media_embed(media: dict, embed_type: int):
+def get_media_embed(media: dict, embed_type: int, data: GuildData = None):
     """
     embed_type (int):
         0 - Added to queue (single song)
@@ -70,7 +71,20 @@ def get_media_embed(media: dict, embed_type: int):
             voice: discord.VoiceClient = ctx.voice_client
 
             embed = get_base_embed("⏸️ Paused" if voice and voice.is_paused() else "🔊 Now Playing")
+
             embed.description = link
+
+            if media["duration"]:
+                delta = data.started_at + data.paused_time
+                if data.is_paused:
+                    delta = data.paused_at - delta
+                else:
+                    delta = time.time() - delta
+
+                point_index = int(15 * (delta / media["duration"]))
+                bar = ["🔘" if i == point_index else "▬" for i in range(15)]
+
+                embed.description += "\n\n`{}` {} `{}`".format(to_timecode(delta), "".join(bar), to_timecode(media["duration"]))
 
     if media["channel"] and media["channel_url"]:
         embed.add_field(name="Channel", value="[**{}**]({})".format(media["channel"], media["channel_url"]))

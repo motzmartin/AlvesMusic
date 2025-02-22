@@ -20,3 +20,4 @@ class AlvesMusic(commands.Bot):
         await self.load_extension("cogs.general")
         await self.load_extension("cogs.play")
         await self.load_extension("cogs.help")
+        await self.load_extension("cogs.update")

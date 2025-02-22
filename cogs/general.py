@@ -1,4 +1,5 @@
 import random
+import time
 import discord
 from discord.ext import commands
 
@@ -63,12 +64,14 @@ class General(commands.Cog):
         data = self.bot.get_data(ctx.guild.id)
 
         if data.is_playing():
-            embed = get_media_embed(data.playing, 4)
+            embed = get_media_embed(data.playing, 4, data=data)
         else:
             embed = get_base_embed("🔇 No Music Playing")
-            embed.description = "There is no music currently playing."
 
-        await ctx.send(embed=embed)
+            embed.description = "There is no music currently playing."
+            embed.set_footer(text="This embed is dynamic, add a song!")
+
+        data.playing_message = await ctx.send(embed=embed)
 
     @commands.command()
     async def queue(self, ctx: commands.Context, page: int = 1):
@@ -157,10 +160,14 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def pause(self, ctx: commands.Context):
+        data = self.bot.get_data(ctx.guild.id)
         voice: discord.VoiceClient = ctx.voice_client
 
         if voice and voice.is_playing():
             voice.pause()
+
+            data.is_paused = True
+            data.paused_at = time.time()
 
             embed = get_base_embed("⏸️ Playback Paused")
             embed.description = "Use **!resume** to resume playback."
@@ -173,10 +180,14 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def resume(self, ctx: commands.Context):
+        data = self.bot.get_data(ctx.guild.id)
         voice: discord.VoiceClient = ctx.voice_client
 
         if voice and voice.is_paused():
             voice.resume()
+
+            data.is_paused = False
+            data.paused_time += time.time() - data.paused_at
 
             embed = get_base_embed("▶️ Playback Resumed")
             embed.description = "The music resumes from where it was paused."

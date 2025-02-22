@@ -1,4 +1,5 @@
 import asyncio
+import time
 import discord
 from discord.ext import commands
 
@@ -65,8 +66,11 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
             "context": ctx
         }
 
-        data.playing = new_song
+        data.reset()
+
         data.player_state = 1
+        data.playing = new_song
+        data.started_at = time.time()
 
         embed = get_media_embed(new_song, 3)
 
