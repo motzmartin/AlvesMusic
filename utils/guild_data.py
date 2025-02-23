@@ -8,6 +8,7 @@ class GuildData:
 
         self.playing: dict = {}
         self.playing_message: discord.Message = None
+        self.update_playing_message: bool = False
 
         self.started_at: int = 0
         self.paused_at: int = 0

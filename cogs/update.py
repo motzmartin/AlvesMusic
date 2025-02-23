@@ -15,7 +15,7 @@ class Update(commands.Cog):
         for guild in self.bot.data:
             data = self.bot.data[guild]
 
-            if data.playing_message:
+            if data.update_playing_message and data.playing_message:
                 if data.is_playing():
                     embed = get_media_embed(data.playing, 4, data=data)
                 else:
@@ -23,6 +23,8 @@ class Update(commands.Cog):
 
                     embed.description = "There is no music currently playing."
                     embed.set_footer(text="This embed is dynamic, add a song!")
+
+                    data.update_playing_message = False
 
                 try:
                     await data.playing_message.edit(embed=embed)

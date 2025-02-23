@@ -70,6 +70,7 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         data.player_state = 1
         data.playing = new_song
+        data.update_playing_message = True
         data.started_at = time.time()
 
         embed = get_media_embed(new_song, 3)
