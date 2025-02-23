@@ -10,7 +10,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        activity = discord.Game(name="!help")
+        activity = discord.Game(name="{}help".format(self.bot.command_prefix))
         await self.bot.change_presence(activity=activity)
 
         print("Connected as {}.".format(self.bot.user))
