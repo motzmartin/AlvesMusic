@@ -10,7 +10,7 @@ class Update(commands.Cog):
 
         self.update_loop.start()
 
-    @tasks.loop(seconds=3)
+    @tasks.loop(seconds=5)
     async def update_loop(self):
         for guild in self.bot.data:
             data = self.bot.data[guild]
