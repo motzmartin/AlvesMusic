@@ -6,7 +6,7 @@ from player import play_song
 from alvesmusic import AlvesMusic
 
 async def process_generic(bot: AlvesMusic, ctx: commands.Context, message: discord.Message, info: dict, is_search: bool = False):
-    data = bot.get_data(ctx.guild.id)
+    player = bot.get_player(ctx.guild.id)
 
     url = "url" if is_search else "webpage_url"
 
@@ -20,14 +20,14 @@ async def process_generic(bot: AlvesMusic, ctx: commands.Context, message: disco
         "context": ctx
     }
 
-    if not data.is_ready():
-        data.queue.append(song.copy())
+    if not player.is_ready():
+        player.queue.append(song.copy())
 
         song["channel"] = info.get("channel")
         song["channel_url"] = info.get("channel_url")
         song["view_count"] = info.get("view_count")
         song["thumbnail"] = get_thumbnail_url(info.get("id"))
-        song["position"] = len(data.queue)
+        song["position"] = len(player.queue)
 
         embed = get_media_embed(song, 0)
 

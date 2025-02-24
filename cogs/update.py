@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands, tasks
 
-from utils import get_base_embed, get_media_embed
+from utils import get_playing_embed
 from alvesmusic import AlvesMusic
 
 class Update(commands.Cog):
@@ -13,23 +13,15 @@ class Update(commands.Cog):
     @tasks.loop(seconds=5)
     async def update_loop(self):
         for guild in self.bot.data:
-            data = self.bot.data[guild]
+            player = self.bot.data[guild]
 
-            if data.update_playing_message and data.playing_message:
-                if data.is_playing():
-                    embed = get_media_embed(data.playing, 4, data=data)
-                else:
-                    embed = get_base_embed("🔇 No Music Playing")
-
-                    embed.description = "There is no music currently playing."
-                    embed.set_footer(text="This embed is dynamic, add a song!")
-
-                    data.update_playing_message = False
+            if player.update_playing_message and player.playing_message:
+                embed = get_playing_embed(player)
 
                 try:
-                    await data.playing_message.edit(embed=embed)
+                    await player.playing_message.edit(embed=embed)
                 except discord.NotFound:
-                    data.playing_message = None
+                    player.playing_message = None
 
     @update_loop.before_loop
     async def before_update_loop(self):

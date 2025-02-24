@@ -6,7 +6,7 @@ from player import play_song
 from alvesmusic import AlvesMusic
 
 async def process_playlist(bot: AlvesMusic, ctx: commands.Context, message: discord.Message, info: dict):
-    data = bot.get_data(ctx.guild.id)
+    player = bot.get_player(ctx.guild.id)
 
     if not info.get("title") or not info.get("webpage_url"):
         raise Exception("Cannot retrieve title or URL. (2)")
@@ -38,14 +38,14 @@ async def process_playlist(bot: AlvesMusic, ctx: commands.Context, message: disc
         "context": ctx
     }
 
-    if not data.is_ready():
-        data.queue.append(song.copy())
+    if not player.is_ready():
+        player.queue.append(song.copy())
 
         song["channel"] = first.get("channel")
         song["channel_url"] = first.get("channel_url")
         song["view_count"] = first.get("view_count")
         song["thumbnail"] = get_thumbnail_url(first.get("id"))
-        song["position"] = len(data.queue)
+        song["position"] = len(player.queue)
 
         embed = get_media_embed(song, 0)
 
@@ -90,7 +90,7 @@ async def process_playlist(bot: AlvesMusic, ctx: commands.Context, message: disc
     if len(songs) > 5:
         preview += "**... ({} more)**".format(len(songs) - 5)
 
-    data.queue.extend(songs)
+    player.queue.extend(songs)
 
     playlist = {
         "title": info["title"],

@@ -1,17 +1,17 @@
 from discord.ext import commands
 
-from utils import GuildData
+from utils import PlayerData
 
 class AlvesMusic(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.data: dict[int, GuildData] = {}
+        self.data: dict[int, PlayerData] = {}
         self.help_command = None
 
-    def get_data(self, guild_id: int):
+    def get_player(self, guild_id: int):
         if not guild_id in self.data:
-            self.data[guild_id] = GuildData()
+            self.data[guild_id] = PlayerData()
 
         return self.data[guild_id]
 

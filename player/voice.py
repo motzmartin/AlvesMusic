@@ -16,8 +16,8 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
     ctx: commands.Context = song["context"]
 
-    data = bot.get_data(ctx.guild.id)
-    data.player_state = 2
+    player = bot.get_player(ctx.guild.id)
+    player.state = 2
 
     embed = get_base_embed("⏳ Loading...")
     embed.description = "Loading {}".format(get_inline_details(song))
@@ -55,7 +55,7 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         voice.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(play_next(bot, ctx), bot.loop))
 
-        new_song = {
+        playing_song = {
             "title": info["title"],
             "url": info["webpage_url"],
             "channel": info.get("channel"),
@@ -66,28 +66,28 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
             "context": ctx
         }
 
-        data.reset()
+        player.state = 1
+        player.playing_song = playing_song
+        player.update_playing_message = True
+        player.started_at = time.time()
+        player.paused_time = 0
 
-        data.player_state = 1
-        data.playing = new_song
-        data.update_playing_message = True
-        data.started_at = time.time()
-
-        embed = get_media_embed(new_song, 3)
+        embed = get_media_embed(playing_song, 3)
 
         if message:
             await message.edit(embed=embed)
         else:
             await ctx.send(embed=embed)
-    except Exception as err:
-        data.reset()
+    except Exception as error:
+        player.reset()
 
         voice: discord.VoiceClient = ctx.voice_client
+
         if voice:
             await voice.disconnect()
 
         embed = get_base_embed("❌ Error while Playing Audio")
-        embed.description = str(err)
+        embed.description = "```ansi\n{}```".format(error)
 
         if message:
             await message.edit(embed=embed)

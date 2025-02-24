@@ -17,7 +17,7 @@ class Events(commands.Cog):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
-        embed = get_base_embed("❌ An error occurred")
+        embed = get_base_embed("🚫 Denied")
 
         raise_error = False
 

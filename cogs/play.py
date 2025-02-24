@@ -33,9 +33,9 @@ class Play(commands.Cog):
                 case "youtube":
                     await process_generic(self.bot, ctx, message, info)
 
-        except Exception as err:
+        except Exception as error:
             embed = get_base_embed("❌ Error during Search")
-            embed.description = str(err)
+            embed.description = "```ansi\n{}```".format(error)
 
             await message.edit(embed=embed)
 

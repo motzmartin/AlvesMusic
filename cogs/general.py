@@ -3,7 +3,7 @@ import time
 import discord
 from discord.ext import commands
 
-from utils import to_timecode, voice_check, get_inline_details, get_base_embed, get_media_embed
+from utils import to_timecode, voice_check, get_inline_details, get_base_embed, get_playing_embed
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -13,20 +13,20 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def skip(self, ctx: commands.Context, number: int = 1):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
 
-        if data.is_playing():
+        if player.is_playing():
             if number != 1:
-                if number > 1 and number <= len(data.queue):
+                if number > 1 and number <= len(player.queue):
                     skipped_duration = 0
 
                     embed = get_base_embed("⏭️ Skipped")
                     embed.description = "Skipped the **current song** and the next **{}** song{} in the queue.\n\n**Currently playing**\n".format(number - 1, "s" if number > 2 else "")
 
-                    embed.description += "{}\n\n**Queue**\n".format(get_inline_details(data.playing))
+                    embed.description += "{}\n\n**Queue**\n".format(get_inline_details(player.playing_song))
 
                     for i in range(number - 1):
-                        song = data.queue.pop(0)
+                        song = player.queue.pop(0)
 
                         if i < 10:
                             embed.description += "{}\n".format(get_inline_details(song, index=(i + 1)))
@@ -45,7 +45,7 @@ class General(commands.Cog):
                     raise commands.BadArgument()
             else:
                 embed = get_base_embed("⏭️ Skipped")
-                embed.description = "Skipped {}".format(get_inline_details(data.playing))
+                embed.description = "Skipped {}".format(get_inline_details(player.playing_song))
 
                 await ctx.send(embed=embed)
 
@@ -54,50 +54,50 @@ class General(commands.Cog):
             if voice:
                 voice.stop()
         else:
-            embed = get_base_embed("❌ Unable to Skip")
+            embed = get_base_embed("🙅‍♀️ Unable to Skip")
             embed.description = "There is no music currently playing."
 
             await ctx.send(embed=embed)
 
     @commands.command()
     async def playing(self, ctx: commands.Context):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
 
-        if data.is_playing():
-            embed = get_media_embed(data.playing, 4, data=data)
-        else:
-            embed = get_base_embed("🔇 No Music Playing")
+        if player.playing_message:
+            try:
+                await player.playing_message.delete()
+            except discord.NotFound:
+                player.playing_message = None
 
-            embed.description = "There is no music currently playing."
-            embed.set_footer(text="This embed is dynamic, add a song!")
+        embed = get_playing_embed(player)
 
-        data.playing_message = await ctx.send(embed=embed)
+        player.playing_message = await ctx.send(embed=embed)
 
     @commands.command()
     async def queue(self, ctx: commands.Context, page: int = 1):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
 
-        if data.queue:
-            max_page = (len(data.queue) + 9) // 10
+        if player.queue:
+            max_page = (len(player.queue) + 9) // 10
 
             if page > 0 and page <= max_page:
                 embed = get_base_embed("📜 Current Queue")
                 embed.description = ""
 
-                for i in range((page - 1) * 10, min(page * 10, len(data.queue))):
-                    embed.description += "{}\n".format(get_inline_details(data.queue[i], index=(i + 1)))
+                for i in range((page - 1) * 10, min(page * 10, len(player.queue))):
+                    embed.description += "{}\n".format(get_inline_details(player.queue[i], index=(i + 1)))
 
-                remaining = len(data.queue) - page * 10
+                remaining = len(player.queue) - page * 10
 
                 if remaining > 0:
                     embed.description += "**... ({} more)**".format(remaining)
 
-                total_duration = sum(song["duration"] for song in data.queue if song["duration"])
+                total_duration = sum(song["duration"] for song in player.queue if song["duration"])
 
                 if total_duration:
                     embed.add_field(name="Total Duration", value=to_timecode(total_duration))
 
-                embed.set_footer(text="Page {}/{} ({} track{})".format(page, max_page, len(data.queue), "s" if len(data.queue) > 1 else ""))
+                embed.set_footer(text="Page {}/{} ({} track{})".format(page, max_page, len(player.queue), "s" if len(player.queue) > 1 else ""))
             else:
                 raise commands.BadArgument()
         else:
@@ -109,18 +109,18 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def remove(self, ctx: commands.Context, index: int):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
 
-        if data.queue:
-            if index and index > 0 and index <= len(data.queue):
-                removed = data.queue.pop(index - 1)
+        if player.queue:
+            if index and index > 0 and index <= len(player.queue):
+                removed = player.queue.pop(index - 1)
 
                 embed = get_base_embed("🗑️ Song Removed")
                 embed.description = "One song has been removed from the queue.\n\n{}".format(get_inline_details(removed, index=index))
             else:
                 raise commands.BadArgument()
         else:
-            embed = get_base_embed("❌ Unable to Remove")
+            embed = get_base_embed("🙅‍♂️ Unable to Remove")
             embed.description = "The queue is empty, add some songs before using **!remove**."
 
         await ctx.send(embed=embed)
@@ -128,10 +128,10 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def clear(self, ctx: commands.Context):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
 
-        if data.queue:
-            data.queue.clear()
+        if player.queue:
+            player.queue.clear()
 
             embed = get_base_embed("🗑️ Queue Cleared")
             embed.description = "All songs have been removed from the queue."
@@ -144,15 +144,15 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def shuffle(self, ctx: commands.Context):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
 
-        if data.queue:
-            random.shuffle(data.queue)
+        if player.queue:
+            random.shuffle(player.queue)
 
             embed = get_base_embed("🔀 Queue Shuffled")
             embed.description = "The order of the songs has been randomly shuffled!"
         else:
-            embed = get_base_embed("❌ Unable to Shuffle")
+            embed = get_base_embed("🙅 Unable to Shuffle")
             embed.description = "The queue is empty, add some songs before using **!shuffle**."
 
         await ctx.send(embed=embed)
@@ -160,19 +160,18 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def pause(self, ctx: commands.Context):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
         voice: discord.VoiceClient = ctx.voice_client
 
         if voice and voice.is_playing():
             voice.pause()
 
-            data.is_paused = True
-            data.paused_at = time.time()
+            player.paused_at = time.time()
 
             embed = get_base_embed("⏸️ Playback Paused")
             embed.description = "Use **!resume** to resume playback."
         else:
-            embed = get_base_embed("❌ Unable to Pause")
+            embed = get_base_embed("🙅‍♀️ Unable to Pause")
             embed.description = "There is no music currently playing."
 
         await ctx.send(embed=embed)
@@ -180,19 +179,19 @@ class General(commands.Cog):
     @commands.command()
     @voice_check()
     async def resume(self, ctx: commands.Context):
-        data = self.bot.get_data(ctx.guild.id)
+        player = self.bot.get_player(ctx.guild.id)
         voice: discord.VoiceClient = ctx.voice_client
 
         if voice and voice.is_paused():
             voice.resume()
 
-            data.is_paused = False
-            data.paused_time += time.time() - data.paused_at
+            player.update_playing_message = True
+            player.paused_time += time.time() - player.paused_at
 
             embed = get_base_embed("▶️ Playback Resumed")
             embed.description = "The music resumes from where it was paused."
         else:
-            embed = get_base_embed("❌ Unable to Resume")
+            embed = get_base_embed("🙅‍♂️ Unable to Resume")
             embed.description = "No music is currently paused."
 
         await ctx.send(embed=embed)
