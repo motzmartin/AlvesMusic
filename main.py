@@ -34,7 +34,7 @@ async def main():
     intents = discord.Intents.default()
     intents.message_content = True
 
-    async with AlvesMusic("?", intents=intents) as bot:
+    async with AlvesMusic("!", intents=intents) as bot:
         await bot.start(TOKEN)
 
 asyncio.run(main())
