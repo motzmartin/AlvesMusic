@@ -68,16 +68,15 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         player.state = 1
         player.playing_song = playing_song
+        player.is_paused = False
+        player.playing_message = message
         player.update_playing_message = True
         player.started_at = time.time()
         player.paused_time = 0
 
-        embed = get_media_embed(playing_song, 3)
+        embed = get_media_embed(playing_song, 4, player=player)
 
-        if message:
-            await message.edit(embed=embed)
-        else:
-            await ctx.send(embed=embed)
+        await message.edit(embed=embed)
     except Exception as error:
         player.reset()
 
@@ -89,7 +88,4 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
         embed = get_base_embed("❌ Error while Playing Audio")
         embed.description = "```ansi\n{}```".format(error)
 
-        if message:
-            await message.edit(embed=embed)
-        else:
-            await ctx.send(embed=embed)
+        await message.edit(embed=embed)

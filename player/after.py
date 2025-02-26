@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils import get_base_embed
+from utils import get_base_embed, get_media_embed, edit_playing_embed
 from alvesmusic import AlvesMusic
 
 async def play_next(bot: AlvesMusic, ctx: commands.Context):
@@ -10,10 +10,16 @@ async def play_next(bot: AlvesMusic, ctx: commands.Context):
     player = bot.get_player(ctx.guild.id)
     voice: discord.VoiceClient = ctx.voice_client
 
+    player.update_playing_message = False
+
+    embed = get_media_embed(player.playing_song, 3, player=player)
+
+    await edit_playing_embed(player, embed)
+
     if not voice:
         player.reset()
 
-        embed = get_base_embed("✋ Playback Ended")
+        embed = get_base_embed("🔇 Playback Ended")
         embed.description = "The bot has left the voice channel."
 
         return await ctx.send(embed=embed)
@@ -23,7 +29,7 @@ async def play_next(bot: AlvesMusic, ctx: commands.Context):
 
         await voice.disconnect()
 
-        embed = get_base_embed("✋ Playback Ended")
+        embed = get_base_embed("🔇 Playback Ended")
         embed.description = "The queue is empty. Disconnecting from the voice channel."
 
         return await ctx.send(embed=embed)

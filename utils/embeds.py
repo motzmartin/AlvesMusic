@@ -47,11 +47,9 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
         0 - Added to queue (single song)
         1 - Added to queue (playlist)
         2 - Pending
-        3 - Playing
-        4 - Now playing / Paused
+        3 - Finished
+        4 - Playing
     """
-    ctx: commands.Context = media["context"]
-
     link = "[**{}**]({})".format(media["title"], media["url"])
 
     match embed_type:
@@ -65,19 +63,16 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
             embed = get_base_embed("🕐 Pending...")
             embed.description = "The remaining tracks in the playlist {} are still pending... Please be patient.".format(link)
         case 3:
-            embed = get_base_embed("🎶 Now Playing")
-            embed.description = "Now playing {}".format(link)
+            embed = get_base_embed("🙌 Finished")
+            embed.description = "The song {} has ended.".format(link)
         case 4:
-            voice: discord.VoiceClient = ctx.voice_client
-
-            paused = voice and voice.is_paused()
-
-            embed = get_base_embed("⏸️ Paused" if paused else "🔊 Now Playing")
+            embed = get_base_embed("⏸️ Paused" if player.is_paused else "🎶 Now Playing")
             embed.description = link
 
             if media["duration"]:
                 delta = player.started_at + player.paused_time
-                if paused:
+
+                if player.is_paused:
                     delta = player.paused_at - delta
                 else:
                     delta = time.time() - delta
@@ -85,10 +80,7 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
                 point_index = int(15 * (delta / media["duration"]))
                 progress_bar = ["🔘" if i == point_index else "▬" for i in range(15)]
 
-                embed.add_field(name="Progress Bar", value="**|**{}**|** **{}/{}**".format("".join(progress_bar), to_timecode(delta), to_timecode(media["duration"])), inline=False)
-
-            if paused:
-                player.update_playing_message = False
+                embed.add_field(name="Progress Bar", value="{} {}/{}".format("".join(progress_bar), to_timecode(delta), to_timecode(media["duration"])), inline=False)
 
     if media["channel"] and media["channel_url"]:
         embed.add_field(name="Channel", value="[**{}**]({})".format(media["channel"], media["channel_url"]))
@@ -96,26 +88,24 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
     if media["view_count"]:
         embed.add_field(name="Views", value="{:,}".format(media["view_count"]).replace(",", " "))
 
-    if embed_type != 4 and media["duration"]:
+    if embed_type != 3 and media["duration"]:
         embed.add_field(name="Total Duration" if embed_type == 1 else "Duration", value=to_timecode(media["duration"]))
 
     if media["thumbnail"]:
         embed.set_thumbnail(url=media["thumbnail"])
+
+    ctx: commands.Context = media["context"]
 
     if ctx.author:
         embed.set_footer(text="Requested by {}".format(ctx.author.global_name), icon_url=ctx.author.avatar.url)
 
     return embed
 
-def get_playing_embed(player: PlayerData):
-    if player.is_playing():
-        embed = get_media_embed(player.playing_song, 4, player=player)
-    else:
-        embed = get_base_embed("🔇 No Music Playing")
+async def edit_playing_embed(player: PlayerData, embed: discord.Embed):
+    try:
+        await player.playing_message.edit(embed=embed)
 
-        embed.description = "There is no music currently playing."
-        embed.set_footer(text="This embed is dynamic, add a song!")
-
+        if player.is_paused:
+            player.update_playing_message = False
+    except discord.NotFound:
         player.update_playing_message = False
-
-    return embed

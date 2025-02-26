@@ -7,6 +7,8 @@ class PlayerData:
         self.state: int = 0
 
         self.playing_song: dict = {}
+        self.is_paused: bool = False
+
         self.playing_message: discord.Message = None
         self.update_playing_message: bool = False
 
@@ -18,6 +20,10 @@ class PlayerData:
         self.state = 0
 
         self.playing_song = {}
+        self.is_paused = False
+
+        self.playing_message = None
+        self.update_playing_message = False
 
         self.started_at = 0
         self.paused_at = 0

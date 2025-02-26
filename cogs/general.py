@@ -3,7 +3,7 @@ import time
 import discord
 from discord.ext import commands
 
-from utils import to_timecode, voice_check, get_inline_details, get_base_embed, get_playing_embed
+from utils import to_timecode, voice_check, get_inline_details, get_base_embed
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -58,20 +58,6 @@ class General(commands.Cog):
             embed.description = "There is no music currently playing."
 
             await ctx.send(embed=embed)
-
-    @commands.command()
-    async def playing(self, ctx: commands.Context):
-        player = self.bot.get_player(ctx.guild.id)
-
-        if player.playing_message:
-            try:
-                await player.playing_message.delete()
-            except discord.NotFound:
-                player.playing_message = None
-
-        embed = get_playing_embed(player)
-
-        player.playing_message = await ctx.send(embed=embed)
 
     @commands.command()
     async def queue(self, ctx: commands.Context, page: int = 1):
@@ -161,11 +147,14 @@ class General(commands.Cog):
     @voice_check()
     async def pause(self, ctx: commands.Context):
         player = self.bot.get_player(ctx.guild.id)
-        voice: discord.VoiceClient = ctx.voice_client
 
-        if voice and voice.is_playing():
-            voice.pause()
+        if not player.is_paused:
+            voice: discord.VoiceClient = ctx.voice_client
 
+            if voice:
+                voice.pause()
+
+            player.is_paused = True
             player.paused_at = time.time()
 
             embed = get_base_embed("⏸️ Playback Paused")
@@ -180,11 +169,14 @@ class General(commands.Cog):
     @voice_check()
     async def resume(self, ctx: commands.Context):
         player = self.bot.get_player(ctx.guild.id)
-        voice: discord.VoiceClient = ctx.voice_client
 
-        if voice and voice.is_paused():
-            voice.resume()
+        if player.is_paused:
+            voice: discord.VoiceClient = ctx.voice_client
 
+            if voice:
+                voice.resume()
+
+            player.is_paused = False
             player.update_playing_message = True
             player.paused_time += time.time() - player.paused_at
 

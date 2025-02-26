@@ -252,7 +252,6 @@ If you want to **keep the bot running even after closing your terminal**, you ca
 |-----------------------|-------------------------------------------------------|
 | `!play <search\|URL>` | Plays a song or adds it to the queue                  |
 | `!skip [number]`      | Skips to the next song or a set number from the queue |
-| `!playing`            | Shows the currently playing song                      |
 | `!queue [page]`       | Displays the current queue                            |
 | `!remove`             | Removes the song at the specified index               |
 | `!clear`              | Clears the queue                                      |

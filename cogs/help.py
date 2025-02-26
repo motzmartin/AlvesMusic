@@ -13,7 +13,6 @@ class Help(commands.Cog):
 
         embed.add_field(name="**!play <search|url>**", value="Plays a song/playlist or adds it to the queue.", inline=False)
         embed.add_field(name="**!skip [number]**", value="Skips the current song, or all songs up to the specified one if a number is provided.", inline=False)
-        embed.add_field(name="**!playing**", value="Shows the currently playing song.", inline=False)
 
         embed.add_field(name="**!queue [page]**", value="Displays the current queue, or a specific page.", inline=False)
         embed.add_field(name="**!remove <index>**", value="Removes the song at the specified index from the queue.", inline=False)
