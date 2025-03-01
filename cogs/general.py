@@ -15,7 +15,7 @@ class General(commands.Cog):
     async def skip(self, ctx: commands.Context, number: int = 1):
         player = self.bot.get_player(ctx.guild.id)
 
-        if player.is_playing():
+        if player.is_running():
             if number != 1:
                 if number > 1 and number <= len(player.queue):
                     skipped_duration = 0
@@ -148,13 +148,13 @@ class General(commands.Cog):
     async def pause(self, ctx: commands.Context):
         player = self.bot.get_player(ctx.guild.id)
 
-        if not player.is_paused:
+        if not player.is_paused():
             voice: discord.VoiceClient = ctx.voice_client
 
             if voice:
                 voice.pause()
 
-            player.is_paused = True
+            player.state = 2
             player.paused_at = time.time()
 
             embed = get_base_embed("⏸️ Playback Paused")
@@ -170,13 +170,13 @@ class General(commands.Cog):
     async def resume(self, ctx: commands.Context):
         player = self.bot.get_player(ctx.guild.id)
 
-        if player.is_paused:
+        if player.is_paused():
             voice: discord.VoiceClient = ctx.voice_client
 
             if voice:
                 voice.resume()
 
-            player.is_paused = False
+            player.state = 1
             player.update_playing_message = True
             player.paused_time += time.time() - player.paused_at
 

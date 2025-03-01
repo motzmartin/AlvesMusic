@@ -66,13 +66,13 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
             embed = get_base_embed("🙌 Finished")
             embed.description = "The song {} has ended.".format(link)
         case 4:
-            embed = get_base_embed("⏸️ Paused" if player.is_paused else "🎶 Now Playing")
+            embed = get_base_embed("⏸️ Paused" if player.is_paused() else "🎶 Now Playing")
             embed.description = link
 
             if media["duration"]:
                 delta = player.started_at + player.paused_time
 
-                if player.is_paused:
+                if player.is_paused():
                     delta = player.paused_at - delta
                 else:
                     delta = time.time() - delta
@@ -88,7 +88,7 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
     if media["view_count"]:
         embed.add_field(name="Views", value="{:,}".format(media["view_count"]).replace(",", " "))
 
-    if embed_type != 3 and media["duration"]:
+    if embed_type != 4 and media["duration"]:
         embed.add_field(name="Total Duration" if embed_type == 1 else "Duration", value=to_timecode(media["duration"]))
 
     if media["thumbnail"]:
@@ -105,7 +105,7 @@ async def edit_playing_embed(player: PlayerData, embed: discord.Embed):
     try:
         await player.playing_message.edit(embed=embed)
 
-        if player.is_paused:
+        if player.is_paused():
             player.update_playing_message = False
     except discord.NotFound:
         player.update_playing_message = False

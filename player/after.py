@@ -8,13 +8,14 @@ async def play_next(bot: AlvesMusic, ctx: commands.Context):
     from . import play_song
 
     player = bot.get_player(ctx.guild.id)
-    voice: discord.VoiceClient = ctx.voice_client
 
     player.update_playing_message = False
 
     embed = get_media_embed(player.playing_song, 3, player=player)
 
     await edit_playing_embed(player, embed)
+
+    voice: discord.VoiceClient = ctx.voice_client
 
     if not voice:
         player.reset()

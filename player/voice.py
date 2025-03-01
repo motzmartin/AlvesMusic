@@ -17,7 +17,7 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
     ctx: commands.Context = song["context"]
 
     player = bot.get_player(ctx.guild.id)
-    player.state = 2
+    player.state = 3
 
     embed = get_base_embed("⏳ Loading...")
     embed.description = "Loading {}".format(get_inline_details(song))
@@ -68,7 +68,6 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
 
         player.state = 1
         player.playing_song = playing_song
-        player.is_paused = False
         player.playing_message = message
         player.update_playing_message = True
         player.started_at = time.time()
