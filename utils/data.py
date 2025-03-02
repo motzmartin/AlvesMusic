@@ -8,8 +8,8 @@ class PlayerData:
         self.state = 0
 
         self.playing_song = {}
-        self.playing_message: discord.Message | None = None
-        self.update_playing_message = False
+        self.playing_embed: discord.Message | None = None
+        self.update_playing_embed = False
 
         self.started_at = self.paused_at = self.paused_time = 0
 
@@ -17,20 +17,26 @@ class PlayerData:
         self.state = 0
 
         self.playing_song.clear()
-        self.playing_message = None
-        self.update_playing_message = False
+        self.playing_embed = None
+        self.update_playing_embed = False
 
         self.started_at = self.paused_at = self.paused_time = 0
 
-    def pause(self):
+    async def pause(self):
+        from . import edit_playing_embed
+
         self.state = 2
 
+        self.update_playing_embed = False
+
         self.paused_at = time.time()
+
+        await edit_playing_embed(self, 4)
 
     def resume(self):
         self.state = 1
 
-        self.update_playing_message = True
+        self.update_playing_embed = True
 
         self.paused_time += time.time() - self.paused_at
 
@@ -42,3 +48,6 @@ class PlayerData:
 
     def is_paused(self):
         return self.state == 2
+
+    def is_active(self):
+        return self.is_playing() or self.is_paused()

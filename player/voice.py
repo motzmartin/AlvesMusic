@@ -70,8 +70,8 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message | None
         player.state = 1
 
         player.playing_song = playing_song
-        player.playing_message = message
-        player.update_playing_message = True
+        player.playing_embed = message
+        player.update_playing_embed = True
 
         player.started_at = time.time()
         player.paused_time = 0

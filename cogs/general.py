@@ -2,7 +2,7 @@ import random
 import discord
 from discord.ext import commands
 
-from utils import to_timecode, voice_check, get_inline_details, get_base_embed
+from utils import to_timecode, voice_check, get_inline_details, get_base_embed, get_media_embed
 from alvesmusic import AlvesMusic
 
 class General(commands.Cog):
@@ -14,7 +14,7 @@ class General(commands.Cog):
     async def skip(self, ctx: commands.Context, number: int = 1):
         player = self.bot.get_player(ctx.guild.id)
 
-        if player.is_playing() or player.is_paused():
+        if player.is_active():
             if number != 1:
                 if number > 1 and number <= len(player.queue):
                     skipped_duration = 0
@@ -53,7 +53,29 @@ class General(commands.Cog):
             if voice:
                 voice.stop()
         else:
-            embed = get_base_embed("🙅‍♀️ Unable to Skip")
+            embed = get_base_embed("🙅 Unable to Skip")
+            embed.description = "There is no music currently playing."
+
+            await ctx.send(embed=embed)
+
+    @commands.command()
+    async def playing(self, ctx: commands.Context):
+        player = self.bot.get_player(ctx.guild.id)
+
+        if player.is_active():
+            try:
+                await player.playing_embed.delete()
+            except discord.NotFound:
+                pass
+
+            embed = get_media_embed(player.playing_song, 4, player=player)
+
+            player.playing_embed = await ctx.send(embed=embed)
+
+            if player.is_playing():
+                player.update_playing_embed = True
+        else:
+            embed = get_base_embed("🙅‍♀️ No Music Playing")
             embed.description = "There is no music currently playing."
 
             await ctx.send(embed=embed)
@@ -153,7 +175,7 @@ class General(commands.Cog):
             if voice:
                 voice.pause()
 
-            player.pause()
+            await player.pause()
 
             embed = get_base_embed("⏸️ Playback Paused")
             embed.description = "Use **!resume** to resume playback."

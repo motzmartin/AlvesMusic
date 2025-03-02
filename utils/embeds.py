@@ -75,8 +75,6 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData | None = No
 
                 if player.is_paused():
                     delta = player.paused_at - delta
-
-                    player.update_playing_message = False
                 else:
                     delta = time.time() - delta
 
@@ -104,8 +102,10 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData | None = No
 
     return embed
 
-async def edit_playing_embed(player: PlayerData, embed: discord.Embed):
+async def edit_playing_embed(player: PlayerData, embed_type: int):
+    embed = get_media_embed(player.playing_song, embed_type, player=player)
+
     try:
-        await player.playing_message.edit(embed=embed)
+        await player.playing_embed.edit(embed=embed)
     except discord.NotFound:
-        player.update_playing_message = False
+        player.update_playing_embed = False

@@ -1,6 +1,6 @@
 from discord.ext import commands, tasks
 
-from utils import get_media_embed, edit_playing_embed
+from utils import edit_playing_embed
 from alvesmusic import AlvesMusic
 
 class Update(commands.Cog):
@@ -14,10 +14,8 @@ class Update(commands.Cog):
         for guild in self.bot.data:
             player = self.bot.data[guild]
 
-            if player.update_playing_message:
-                embed = get_media_embed(player.playing_song, 4, player=player)
-
-                await edit_playing_embed(player, embed)
+            if player.update_playing_embed:
+                await edit_playing_embed(player, 4)
 
     @update_loop.before_loop
     async def before_update_loop(self):
