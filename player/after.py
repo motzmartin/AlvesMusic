@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 
-from utils import get_base_embed, get_media_embed, edit_playing_embed
+from utils import get_base_embed, edit_playing_embed
 from alvesmusic import AlvesMusic
 
 async def play_next(bot: AlvesMusic, ctx: commands.Context):

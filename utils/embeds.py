@@ -2,8 +2,7 @@ import time
 import discord
 from discord.ext import commands
 
-from utils import PlayerData
-from . import to_timecode
+from . import PlayerData, to_timecode
 
 COLOR = "#73BCFF"
 
