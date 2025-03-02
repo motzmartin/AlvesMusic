@@ -11,12 +11,13 @@ FFMPEG_OPTIONS = {
     "options": "-vn"
 }
 
-async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None):
+async def play_song(bot: AlvesMusic, song: dict, message: discord.Message | None = None):
     from . import play_next
 
     ctx: commands.Context = song["context"]
 
     player = bot.get_player(ctx.guild.id)
+
     player.state = 3
 
     embed = get_base_embed("⏳ Loading...")
@@ -67,9 +68,11 @@ async def play_song(bot: AlvesMusic, song: dict, message: discord.Message = None
         }
 
         player.state = 1
+
         player.playing_song = playing_song
         player.playing_message = message
         player.update_playing_message = True
+
         player.started_at = time.time()
         player.paused_time = 0
 

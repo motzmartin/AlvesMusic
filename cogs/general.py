@@ -1,5 +1,4 @@
 import random
-import time
 import discord
 from discord.ext import commands
 
@@ -15,7 +14,7 @@ class General(commands.Cog):
     async def skip(self, ctx: commands.Context, number: int = 1):
         player = self.bot.get_player(ctx.guild.id)
 
-        if player.is_running():
+        if player.is_playing() or player.is_paused():
             if number != 1:
                 if number > 1 and number <= len(player.queue):
                     skipped_duration = 0
@@ -148,14 +147,13 @@ class General(commands.Cog):
     async def pause(self, ctx: commands.Context):
         player = self.bot.get_player(ctx.guild.id)
 
-        if not player.is_paused():
+        if player.is_playing():
             voice: discord.VoiceClient = ctx.voice_client
 
             if voice:
                 voice.pause()
 
-            player.state = 2
-            player.paused_at = time.time()
+            player.pause()
 
             embed = get_base_embed("⏸️ Playback Paused")
             embed.description = "Use **!resume** to resume playback."
@@ -176,9 +174,7 @@ class General(commands.Cog):
             if voice:
                 voice.resume()
 
-            player.state = 1
-            player.update_playing_message = True
-            player.paused_time += time.time() - player.paused_at
+            player.resume()
 
             embed = get_base_embed("▶️ Playback Resumed")
             embed.description = "The music resumes from where it was paused."

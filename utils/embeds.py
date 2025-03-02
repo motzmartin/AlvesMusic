@@ -27,6 +27,7 @@ def get_inline_details(song: dict, index: int = 0, include_author: bool = True):
 
     if include_author:
         ctx: commands.Context = song["context"]
+
         if ctx.author:
             line += " {}".format(ctx.author.mention)
 
@@ -41,7 +42,7 @@ def get_base_embed(title: str = ""):
 
     return embed
 
-def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
+def get_media_embed(media: dict, embed_type: int, player: PlayerData | None = None):
     """
     embed_type (int):
         0 - Added to queue (single song)
@@ -74,6 +75,8 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
 
                 if player.is_paused():
                     delta = player.paused_at - delta
+
+                    player.update_playing_message = False
                 else:
                     delta = time.time() - delta
 
@@ -104,8 +107,5 @@ def get_media_embed(media: dict, embed_type: int, player: PlayerData = None):
 async def edit_playing_embed(player: PlayerData, embed: discord.Embed):
     try:
         await player.playing_message.edit(embed=embed)
-
-        if player.is_paused():
-            player.update_playing_message = False
     except discord.NotFound:
         player.update_playing_message = False
